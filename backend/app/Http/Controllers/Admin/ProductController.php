@@ -92,7 +92,8 @@ class ProductController extends Controller
     private function validated(Request $request, ?int $ignoreId = null): array
     {
         // For partial updates (like inline sort_order), only validate present fields
-        $isPartial = $request->has('sort_order') && $request->count() <= 3; // sort_order + _token + _method
+        $inputKeys = array_keys($request->all());
+        $isPartial = $request->has('sort_order') && count($inputKeys) <= 4; // sort_order + _token + _method + maybe category_id
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
