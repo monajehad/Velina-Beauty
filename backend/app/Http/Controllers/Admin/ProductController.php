@@ -91,16 +91,26 @@ class ProductController extends Controller
 
     private function validated(Request $request, ?int $ignoreId = null): array
     {
-        return $request->validate([
-            'category_id' => ['required', 'exists:categories,id'],
+        // For partial updates (like inline sort_order), only validate present fields
+        $isPartial = $request->has('sort_order') && $request->count() <= 3; // sort_order + _token + _method
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-            // Barcode kept as a plain string so leading zeros (e.g. "00107") are preserved.
             'barcode' => ['required', 'string', 'max:64'],
             'price' => ['required', 'numeric', 'min:0'],
             'default_qty' => ['required', 'integer', 'min:1'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'max:4096'],
-        ]);
+        ];
+
+        // category_id is required for full updates, but optional for partial (sort_order only)
+        if (!$isPartial) {
+            $rules['category_id'] = ['required', 'exists:categories,id'];
+        } else {
+            $rules['category_id'] = ['sometimes', 'exists:categories,id'];
+        }
+
+        return $request->validate($rules);
     }
 }
