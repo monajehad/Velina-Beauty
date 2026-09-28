@@ -65,7 +65,7 @@
 
                     {{-- Barcode drawn client-side by JsBarcode from the stored number --}}
                     <svg class="barcode w-3/4 mx-auto mt-1" style="height: 24px;" data-barcode="{{ $product->barcode }}"></svg>
-                    <div class="text-[11px] text-center text-gray-500 digits-en">BC: #{{ $product->barcode }}</div>
+                    <div class="text-[11px] text-center text-gray-500 digits-en">BC: {{ $product->barcode }}</div>
 
                     <div class="text-sm text-center text-maroon font-medium my-1 digits-en">{{ number_format($product->price, 3) }} {{ __('price_prefix') }}</div>
 

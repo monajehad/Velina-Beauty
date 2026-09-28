@@ -22,6 +22,7 @@
                 <th>Barcode</th>
                 <th>Price</th>
                 <th>Default qty</th>
+                <th>Sort</th>
                 <th>Status</th>
                 <th></th>
             </tr>
@@ -34,9 +35,16 @@
                     </td>
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category->name }}</td>
-                    <td>#{{ $product->barcode }}</td>
+                    <td>{{ $product->barcode }}</td>
                     <td>{{ number_format($product->price, 3) }} {{ __('price_prefix') }}</td>
                     <td>{{ $product->default_qty }}</td>
+                    <td>
+                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="inline-flex items-center gap-1">
+                            @csrf @method('PUT')
+                            <input type="number" name="sort_order" min="0" value="{{ $product->sort_order }}" class="w-16 border rounded px-2 py-1 text-xs text-center">
+                            <button type="submit" class="text-xs text-maroon hover:underline">Save</button>
+                        </form>
+                    </td>
                     <td>
                         <form method="POST" action="{{ route('admin.products.toggle', $product) }}">
                             @csrf @method('PATCH')
@@ -50,12 +58,12 @@
                         <form method="POST" action="{{ route('admin.products.destroy', $product) }}" class="inline"
                               onsubmit="return confirm('Delete this product?');">
                             @csrf @method('DELETE')
-                            <button class="text-xs text-red-600 underline">Delete</button>
+                            <button type="submit" class="text-xs text-red-600 underline">Delete</button>
                         </form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="p-6 text-center text-gray-500">No products yet.</td></tr>
+                <tr><td colspan="9" class="p-6 text-center text-gray-500">No products yet.</td></tr>
             @endforelse
         </tbody>
     </table>

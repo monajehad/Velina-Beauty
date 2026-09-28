@@ -21,6 +21,7 @@ class CatalogController extends Controller
             ->when($request->filled('category'), function ($query) use ($request) {
                 $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
             })
+            ->orderBy('sort_order')
             ->orderByDesc('id')
             ->get();
 

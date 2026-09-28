@@ -20,6 +20,7 @@ class ProductController extends Controller
                       ->orWhere('barcode', 'like', "%{$search}%");
                 });
             })
+            ->orderBy('sort_order')
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -94,12 +95,10 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
             // Barcode kept as a plain string so leading zeros (e.g. "00107") are preserved.
-            'barcode' => [
-                'required', 'string', 'max:64',
-                'unique:products,barcode' . ($ignoreId ? ",{$ignoreId}" : ''),
-            ],
+            'barcode' => ['required', 'string', 'max:64'],
             'price' => ['required', 'numeric', 'min:0'],
             'default_qty' => ['required', 'integer', 'min:1'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'max:4096'],
         ]);

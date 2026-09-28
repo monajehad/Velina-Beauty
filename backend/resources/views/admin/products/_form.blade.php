@@ -40,6 +40,13 @@
     </div>
 
     <div>
+        <label class="text-xs text-gray-600">Display Order (Sort)</label>
+        <input type="number" min="0" name="sort_order" value="{{ old('sort_order', $product->sort_order ?? 0) }}"
+               class="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+        <span class="text-xs text-gray-400 mt-1 block">Lower numbers appear first</span>
+    </div>
+
+    <div>
         <label class="text-xs text-gray-600">Product image</label>
         <input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 bg-white">
         @if (! empty($product) && $product->image_path)

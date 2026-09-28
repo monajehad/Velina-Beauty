@@ -13,11 +13,12 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             // Stored as a STRING on purpose: keeps leading zeros like "00107" intact.
-            $table->string('barcode')->unique();
-            $table->decimal('price', 10, 2);
+            $table->string('barcode');
+            $table->decimal('price', 10, 3);
             $table->unsignedInteger('default_qty')->default(50);
             $table->string('image_path')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
         });
     }

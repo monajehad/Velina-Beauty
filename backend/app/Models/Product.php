@@ -18,10 +18,11 @@ class Product extends Model
         'default_qty',
         'image_path',
         'is_active',
+        'sort_order',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'price' => 'decimal:3',
         'is_active' => 'boolean',
     ];
 
