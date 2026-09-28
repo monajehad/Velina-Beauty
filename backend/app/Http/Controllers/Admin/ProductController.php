@@ -99,7 +99,7 @@ class ProductController extends Controller
 
         // Always validate sort_order if present
         if ($request->has('sort_order')) {
-            $rules['sort_order'] = ['nullable', 'integer', 'min:0', 'unique:products,sort_order' . ($ignoreId ? ",{$ignoreId}" : '')];
+            $rules['sort_order'] = ['nullable', 'integer', 'min:0'];
         }
 
         // For full updates (create/edit form), validate all required fields

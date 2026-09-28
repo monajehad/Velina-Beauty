@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('default_qty')->default(50);
             $table->string('image_path')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('sort_order')->default(0)->unique();
+            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
         });
     }
