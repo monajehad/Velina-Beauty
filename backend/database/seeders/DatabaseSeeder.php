@@ -20,6 +20,26 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Additional admin: nader / 1234
+        User::firstOrCreate(
+            ['email' => 'nader'],
+            [
+                'name' => 'Nader',
+                'password' => Hash::make('1234'),
+                'is_admin' => true,
+            ]
+        );
+
+        // Additional admin: moner / 1234
+        User::firstOrCreate(
+            ['email' => 'moner'],
+            [
+                'name' => 'Moner',
+                'password' => Hash::make('1234'),
+                'is_admin' => true,
+            ]
+        );
+
         $this->call([
             CategorySeeder::class,
             ProductSeeder::class,
