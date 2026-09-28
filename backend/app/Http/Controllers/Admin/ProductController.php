@@ -91,25 +91,28 @@ class ProductController extends Controller
 
     private function validated(Request $request, ?int $ignoreId = null): array
     {
-        // For partial updates (like inline sort_order), only validate present fields
         $inputKeys = array_keys($request->all());
         $isPartial = $request->has('sort_order') && count($inputKeys) <= 4; // sort_order + _token + _method + maybe category_id
 
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'barcode' => ['required', 'string', 'max:64'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'default_qty' => ['required', 'integer', 'min:1'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
-            'is_active' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'image', 'max:4096'],
-        ];
+        // For partial updates, only validate the fields that are actually present
+        $rules = [];
 
-        // category_id is required for full updates, but optional for partial (sort_order only)
+        // Always validate sort_order if present
+        if ($request->has('sort_order')) {
+            $rules['sort_order'] = ['nullable', 'integer', 'min:0'];
+        }
+
+        // For full updates (create/edit form), validate all required fields
         if (!$isPartial) {
-            $rules['category_id'] = ['required', 'exists:categories,id'];
-        } else {
-            $rules['category_id'] = ['sometimes', 'exists:categories,id'];
+            $rules = array_merge($rules, [
+                'category_id' => ['required', 'exists:categories,id'],
+                'name' => ['required', 'string', 'max:255'],
+                'barcode' => ['required', 'string', 'max:64'],
+                'price' => ['required', 'numeric', 'min:0'],
+                'default_qty' => ['required', 'integer', 'min:1'],
+                'is_active' => ['sometimes', 'boolean'],
+                'image' => ['nullable', 'image', 'max:4096'],
+            ]);
         }
 
         return $request->validate($rules);
