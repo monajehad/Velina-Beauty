@@ -51,6 +51,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin'])->group(
 | Public storefront (with locale prefix)
 |--------------------------------------------------------------------------
 */
+Route::redirect('/', '/en');
 Route::prefix('{locale}')->middleware('locale')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
 })->where('locale', 'en|fa');
