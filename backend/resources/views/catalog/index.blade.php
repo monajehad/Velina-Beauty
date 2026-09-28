@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modalImage.src = product.image;
         modalName.textContent = product.name;
         modalPrice.textContent = parseFloat(product.price).toFixed(3) + ' ' + '{{ __('price_prefix') }}';
-        modalBarcode.textContent = 'BC: #' + product.barcode;
+        modalBarcode.textContent = 'BC: ' + product.barcode;
         productModal.classList.remove('hidden');
         productModal.classList.add('flex');
         document.body.style.overflow = 'hidden';
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-sm font-medium text-gray-800 truncate">${item.name}</h4>
-                        <p class="text-[10px] text-gray-500 digits-en">BC: #${item.barcode}</p>
+                        <p class="text-[10px] text-gray-500 digits-en">BC: ${item.barcode}</p>
                         <div class="flex items-center gap-2 mt-1">
                             <span class="text-xs text-gray-500">${item.price.toFixed(3)} ${pricePrefix}</span>
                             <span class="text-xs text-gray-400">×</span>
