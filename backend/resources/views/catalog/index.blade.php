@@ -45,47 +45,51 @@
         <a href="{{ route('catalog.index', ['locale' => app()->getLocale()]) }}" class="text-xs text-rose underline">{{ __('show_all_products') }}</a>
     @endif
 
-    {{-- Product grid: responsive columns --}}
+    {{-- Product grid: responsive columns with equal height cards --}}
     <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 mt-3">
         @forelse ($products as $product)
-            <div class="bg-white rounded-xl border border-[#e7ddd2] p-2" data-product-card>
-                {{-- Product Image (clickable for view modal) - half card height --}}
-                <div class="bg-[#F1E7E0] rounded-lg h-40 flex items-center justify-center overflow-hidden cursor-pointer product-image"
-                     data-id="{{ $product->id }}"
-                     data-name="{{ $product->name }}"
-                     data-barcode="{{ $product->barcode }}"
-                     data-price="{{ $product->price }}"
-                     data-image="{{ $product->imageUrl() }}"
-                     data-desc="{{ $product->name }}">
-                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+            <div class="product-card bg-white rounded-xl border border-[#e7ddd2] p-2" data-product-card>
+                <div class="card-content flex flex-col">
+                    {{-- Product Image (clickable for view modal) - half card height --}}
+                    <div class="bg-[#F1E7E0] rounded-lg h-40 flex items-center justify-center overflow-hidden cursor-pointer product-image"
+                         data-id="{{ $product->id }}"
+                         data-name="{{ $product->name }}"
+                         data-barcode="{{ $product->barcode }}"
+                         data-price="{{ $product->price }}"
+                         data-image="{{ $product->imageUrl() }}"
+                         data-desc="{{ $product->name }}">
+                        <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                    </div>
+
+                    <div class="text-xs font-semibold text-center text-gray-800 mt-1 leading-tight">{{ $product->name }}</div>
+
+                    {{-- Barcode drawn client-side by JsBarcode from the stored number --}}
+                    <svg class="barcode w-3/4 mx-auto mt-1" style="height: 24px;" data-barcode="{{ $product->barcode }}"></svg>
+                    <div class="text-[11px] text-center text-gray-500 digits-en">BC: #{{ $product->barcode }}</div>
+
+                    <div class="text-sm text-center text-maroon font-medium my-1 digits-en">{{ number_format($product->price, 3) }} {{ __('price_prefix') }}</div>
+
+                    {{-- Quantity selector (starts at 0) --}}
+                    <div class="flex items-center justify-between bg-cream rounded-lg px-2 py-1">
+                        <button type="button" class="text-maroon font-semibold text-lg leading-none qty-minus" disabled>−</button>
+                        <input type="number" class="text-xs qty-value digits-en w-12 text-center border-0 bg-transparent focus:outline-none focus:ring-0" data-qty="0" value="0" min="0" step="1">
+                        <button type="button" class="text-maroon font-semibold text-lg leading-none qty-plus">+</button>
+                    </div>
                 </div>
-
-                <div class="text-xs font-semibold text-center text-gray-800 mt-1 leading-tight">{{ $product->name }}</div>
-
-                {{-- Barcode drawn client-side by JsBarcode from the stored number --}}
-                <svg class="barcode w-3/4 mx-auto mt-1" style="height: 24px;" data-barcode="{{ $product->barcode }}"></svg>
-                <div class="text-[11px] text-center text-gray-500 digits-en">BC: #{{ $product->barcode }}</div>
-
-                <div class="text-sm text-center text-maroon font-medium my-1 digits-en">{{ number_format($product->price, 3) }} {{ __('price_prefix') }}</div>
-
-                {{-- Quantity selector (starts at 0) --}}
-                <div class="flex items-center justify-between bg-cream rounded-lg px-2 py-1">
-                    <button type="button" class="text-maroon font-semibold text-lg leading-none qty-minus" disabled>−</button>
-                    <input type="number" class="text-xs qty-value digits-en w-12 text-center border-0 bg-transparent focus:outline-none focus:ring-0" data-qty="0" value="0" min="0" step="1" readonly>
-                    <button type="button" class="text-maroon font-semibold text-lg leading-none qty-plus">+</button>
+                {{-- Card footer: Add button aligned at bottom --}}
+                <div class="card-footer mt-2">
+                    {{-- Add to cart button --}}
+                    <button type="button"
+                            class="add-btn w-full bg-maroon text-white text-xs rounded-lg py-1.5 opacity-50 cursor-not-allowed"
+                            disabled
+                            data-id="{{ $product->id }}"
+                            data-name="{{ $product->name }}"
+                            data-barcode="{{ $product->barcode }}"
+                            data-price="{{ $product->price }}"
+                            data-image="{{ $product->imageUrl() }}">
+                        {{ __('add') }}
+                    </button>
                 </div>
-
-                {{-- Add to cart button --}}
-                <button type="button"
-                        class="add-btn w-full mt-1.5 bg-maroon text-white text-xs rounded-lg py-1.5 opacity-50 cursor-not-allowed"
-                        disabled
-                        data-id="{{ $product->id }}"
-                        data-name="{{ $product->name }}"
-                        data-barcode="{{ $product->barcode }}"
-                        data-price="{{ $product->price }}"
-                        data-image="{{ $product->imageUrl() }}">
-                    {{ __('add') }}
-                </button>
             </div>
         @empty
             <p class="col-span-full text-center text-sm text-gray-500 py-10">{{ __('no_products') }}</p>
@@ -255,7 +259,8 @@ document.addEventListener('DOMContentLoaded', function () {
         let total = 0;
         Object.values(cart).forEach(item => total += item.price * item.qty);
         const totalEl = document.getElementById('cart-total');
-        if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+        const pricePrefix = '{{ __('price_prefix') }}';
+        if (totalEl) totalEl.textContent = total.toFixed(3) + ' ' + pricePrefix;
 
         // Enable/disable review order button
         if (reviewOrderBtn) {

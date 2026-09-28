@@ -2,7 +2,7 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'fa' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('store_name'))</title>
 
@@ -33,6 +33,12 @@
         /* Force English digits everywhere */
         .digits-en { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; direction: ltr; unicode-bidi: isolate; }
         .digits-en * { direction: ltr; unicode-bidi: isolate; }
+        /* Prevent zoom on double tap / pinch */
+        * { touch-action: manipulation; }
+        /* Fix card height consistency */
+        .product-card { display: flex; flex-direction: column; height: 100%; }
+        .product-card .card-content { flex: 1; display: flex; flex-direction: column; }
+        .product-card .card-footer { margin-top: auto; }
     </style>
     @stack('styles')
 </head>
