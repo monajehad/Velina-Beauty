@@ -20,9 +20,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Additional admin: nader / 1234
+        // Additional admin: nader@admin.com / 1234
         User::firstOrCreate(
-            ['email' => 'nader'],
+            ['email' => 'nader@admin.com'],
             [
                 'name' => 'Nader',
                 'password' => Hash::make('1234'),
@@ -30,9 +30,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Additional admin: moner / 1234
+        // Additional admin: moner@admin.com / 1234
         User::firstOrCreate(
-            ['email' => 'moner'],
+            ['email' => 'moner@admin.com'],
             [
                 'name' => 'Moner',
                 'password' => Hash::make('1234'),
