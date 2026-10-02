@@ -224,7 +224,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const whatsappNumber = @json($whatsappNumber);
-    const cart = {}; // { productId: { name, barcode, price, qty, image } }
+    // Load cart from localStorage to persist across page reloads (category changes)
+    let cart = {};
+    try {
+        const saved = localStorage.getItem('velina_cart');
+        if (saved) cart = JSON.parse(saved);
+    } catch (e) { cart = {}; }
+
+    function saveCart() {
+        localStorage.setItem('velina_cart', JSON.stringify(cart));
+    }
 
     // Product Modal elements (View Only)
     const productModal = document.getElementById('product-modal');
@@ -272,6 +281,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 reviewOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
         }
+    }
+
+    // Restore cart UI from localStorage on page load
+    function restoreCartUI() {
+        Object.keys(cart).forEach(id => {
+            const addBtn = document.querySelector('.add-btn[data-id="' + id + '"]');
+            if (addBtn) {
+                const card = addBtn.closest('[data-product-card]');
+                const qtyEl = card?.querySelector('.qty-value');
+                const minusBtn = card?.querySelector('.qty-minus');
+                const plusBtn = card?.querySelector('.qty-plus');
+                const qty = cart[id].qty;
+                if (qtyEl) {
+                    qtyEl.dataset.qty = qty;
+                    qtyEl.value = qty;
+                }
+                if (minusBtn) minusBtn.disabled = qty <= 0;
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-maroon');
+                    addBtn.classList.add('bg-rose');
+                    addBtn.textContent = translations.added;
+                }
+            }
+        });
     }
 
     function updateCardUI(card, qty) {
@@ -451,6 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cart[addBtn.dataset.id]) {
                 cart[addBtn.dataset.id].qty = q;
                 updateTotal();
+                saveCart();
             }
         }
 
@@ -491,11 +526,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     addBtn.classList.add('bg-rose');
                 }
                 updateTotal();
+                saveCart();
             });
         }
     });
 
     updateTotal();
+    restoreCartUI();
 });
 </script>
 @endpush
