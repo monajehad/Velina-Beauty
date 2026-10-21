@@ -1,6 +1,6 @@
-# Velina Beauty — Laravel Catalog + Admin Panel
+# AL OAMAR GENERAL TRADING — Laravel Catalog + Admin Panel
 
-This package contains the **application code** for the Velina Beauty storefront:
+This package contains the **application code** for the AL OAMAR GENERAL TRADING storefront:
 public catalog (logo, categories, barcode cards, WhatsApp checkout) and a
 full admin panel (login, products CRUD with manual barcode entry, categories).
 

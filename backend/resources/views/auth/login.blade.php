@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Login - Velina Beauty</title>
+    <title>Admin Login - AL OAMAR GENERAL TRADING</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { theme: { extend: { colors: { maroon: '#681B2B', cream: '#F7F0E8' } } } }</script>
 </head>
 <body class="bg-cream min-h-screen flex items-center justify-center px-4">
     <div class="bg-white rounded-xl shadow-sm p-6 w-full max-w-sm">
         <div class="text-center mb-5">
-            <div class="text-maroon text-xl font-semibold">Velina Beauty</div>
+            <div class="text-maroon text-xl font-semibold">AL OAMAR GENERAL TRADING</div>
             <div class="text-xs text-gray-500">Admin Login</div>
         </div>
 

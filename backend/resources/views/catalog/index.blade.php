@@ -8,7 +8,7 @@
     {{-- Top bar: logo + language switcher --}}
     <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-            <img src="{{ asset('images/logo.png') }}" alt="Velina Beauty" class="w-10 h-10">
+            <img src="{{ asset('images/logo.png') }}" alt="AL OAMAR GENERAL TRADING" class="w-10 h-10">
             <div>
                 <div class="text-sm font-semibold text-maroon">{{ __('store_name') }}</div>
                 <div class="text-[10px] text-gray-500">{{ __('owner_name') }}</div>

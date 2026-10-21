@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Admin') - Velina Beauty</title>
+    <title>@yield('title', 'Admin') - AL OAMAR GENERAL TRADING</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { theme: { extend: { colors: { maroon: '#681B2B', cream: '#F7F0E8', rose: '#C28795' } } } }</script>
 </head>
 <body class="bg-cream min-h-screen">
     <div class="flex flex-col md:flex-row">
         <aside class="bg-maroon text-white md:w-56 md:min-h-screen p-4">
-            <div class="font-semibold mb-4">Velina Beauty — Admin</div>
+            <div class="font-semibold mb-4">AL OAMAR GENERAL TRADING — Admin</div>
             <nav class="space-y-1 text-sm">
                 <a href="{{ route('admin.dashboard') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">Dashboard</a>
                 <a href="{{ route('admin.products.index') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">Products</a>

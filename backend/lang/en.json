@@ -1,5 +1,5 @@
 {
-    "store_name": "Velina Beauty",
+    "store_name": "AL OAMAR GENERAL TRADING",
     "owner_name": "Nader Munir Mahmoud",
     "all_categories": "All",
     "makeup_tools": "Makeup Tools",
@@ -12,7 +12,7 @@
     "added": "Added \u2713",
     "total": "Total",
     "confirm_order_whatsapp": "Confirm Order via WhatsApp",
-    "order_message": "Hello Velina Beauty, I'd like to confirm this order:",
+    "order_message": "Hello AL OAMAR GENERAL TRADING, I'd like to confirm this order:",
     "order_item_format": "{index}) {name}\n\u2022 Barcode: #{barcode}\n\u2022 Qty: {qty}\n\u2022 Price: {price}\n\u2022 Image: {image}",
     "order_total_format": "Total: {total}",
     "no_products": "No products in this category yet.",
