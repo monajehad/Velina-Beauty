@@ -104,8 +104,7 @@
 <div class="fixed bottom-0 inset-x-0 safe-bottom">
     <div class="max-w-7xl mx-auto px-4 p-3">
         <button id="review-order-btn"
-                class="w-full bg-[#25D366] text-white rounded-full py-3 text-sm font-medium opacity-50 cursor-not-allowed"
-                disabled>
+                class="w-full bg-[#25D366] text-white rounded-full py-3 text-sm font-medium">
             🧾 {{ __('review_order') }}
         </button>
     </div>
@@ -456,9 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Open order modal
     if (reviewOrderBtn) {
         reviewOrderBtn.addEventListener('click', function () {
-            if (Object.keys(cart).length > 0) {
-                openOrderModal();
-            }
+            openOrderModal();
         });
     }
 
