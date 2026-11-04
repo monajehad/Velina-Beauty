@@ -226,12 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const whatsappNumber = @json($whatsappNumber);
-    // Load cart from localStorage to persist across page reloads (category changes)
+    // Cart starts fresh each page load
     let cart = {};
-    try {
-        const saved = localStorage.getItem('velina_cart');
-        if (saved) cart = JSON.parse(saved);
-    } catch (e) { cart = {}; }
 
     function saveCart() {
         localStorage.setItem('velina_cart', JSON.stringify(cart));
