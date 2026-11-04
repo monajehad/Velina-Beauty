@@ -532,7 +532,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updateTotal();
-    restoreCartUI();
 });
 </script>
 @endpush
