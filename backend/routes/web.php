@@ -22,7 +22,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 |--------------------------------------------------------------------------
 */
 Route::get('/lang/{locale}', function ($locale) {
-    $availableLocales = config('app.available_locales', ['en', 'fa']);
+    $availableLocales = config('app.available_locales', ['en', 'ar', 'fa']);
     if (in_array($locale, $availableLocales)) {
         session(['locale' => $locale]);
     }
@@ -54,4 +54,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin'])->group(
 Route::redirect('/', '/en');
 Route::prefix('{locale}')->middleware('locale')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
-})->where('locale', 'en|fa');
+})->where('locale', 'en|ar|fa');

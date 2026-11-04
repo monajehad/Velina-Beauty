@@ -20,7 +20,7 @@ return [
 
     'faker_locale' => 'en_US',
 
-    'available_locales' => ['en', 'fa'],
+    'available_locales' => ['en', 'ar', 'fa'],
 
     'cipher' => 'AES-256-CBC',
 

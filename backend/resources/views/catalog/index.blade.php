@@ -18,6 +18,10 @@
                class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'en' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
                 EN
             </a>
+            <a href="{{ route('lang.switch', 'ar') }}"
+               class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'ar' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
+                ع
+            </a>
             <a href="{{ route('lang.switch', 'fa') }}"
                class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'fa' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
                 فا
