@@ -54,7 +54,7 @@
             <div class="product-card bg-white rounded-xl border border-[#e7ddd2] p-2" data-product-card>
                 <div class="card-content flex flex-col">
                     {{-- Product Image (clickable for view modal) - half card height --}}
-                    <div class="bg-[#F1E7E0] rounded-lg h-40 flex items-center justify-center overflow-hidden cursor-pointer product-image"
+                    <div class="bg-[#F1E7E0] rounded-lg h-56 flex items-center justify-center overflow-hidden cursor-pointer product-image"
                          data-id="{{ $product->id }}"
                          data-name="{{ $product->name }}"
                          data-barcode="{{ $product->barcode }}"
@@ -66,14 +66,8 @@
 
                     <div class="text-xs font-semibold text-center text-gray-800 mt-1 leading-tight">{{ $product->name }}</div>
 
-                    {{-- Barcode drawn client-side by JsBarcode from the stored number --}}
-                    <svg class="barcode w-3/4 mx-auto mt-1" style="height: 24px;" data-barcode="{{ $product->barcode }}"></svg>
-                    <div class="text-[11px] text-center text-gray-500 digits-en">BC: {{ $product->barcode }}</div>
-
-                    <div class="text-sm text-center text-maroon font-medium my-1 digits-en">{{ number_format($product->price, 3) }} {{ __('price_prefix') }}</div>
-
                     {{-- Quantity selector (starts at 0) --}}
-                    <div class="flex items-center justify-between bg-cream rounded-lg px-2 py-1">
+                    <div class="flex items-center justify-between bg-cream rounded-lg px-2 py-1 mt-2">
                         <button type="button" class="text-maroon font-semibold text-lg leading-none qty-minus" disabled>−</button>
                         <input type="number" class="text-xs qty-value digits-en w-12 text-center border-0 bg-transparent focus:outline-none focus:ring-0" data-qty="0" value="0" min="0" step="1">
                         <button type="button" class="text-maroon font-semibold text-lg leading-none qty-plus">+</button>
