@@ -49,7 +49,7 @@
     @endif
 
     {{-- Product grid: responsive columns with equal height cards --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mt-3 pb-24">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 mt-3">
         @forelse ($products as $product)
             <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col" data-product-card
                  data-id="{{ $product->id }}"
@@ -58,18 +58,18 @@
                  data-price="{{ $product->price }}"
                  data-image="{{ $product->imageUrl() }}">
                 {{-- Product image fills the top of the card (click opens view modal) --}}
-                <div class="aspect-[6/7] bg-[#F1E7E0] cursor-pointer product-image"
+                <div class="relative aspect-[6/7] overflow-hidden bg-[#F1E7E0] cursor-pointer product-image"
                      data-id="{{ $product->id }}"
                      data-name="{{ $product->name }}"
                      data-barcode="{{ $product->barcode }}"
                      data-price="{{ $product->price }}"
                      data-image="{{ $product->imageUrl() }}">
-                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover" loading="lazy">
+                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
                 </div>
 
                 {{-- Footer: name + round "+" button, which turns into a − qty + stepper once added --}}
-                <div class="flex items-center justify-between gap-2 px-3 py-2.5">
-                    <div class="text-sm font-bold text-gray-900 truncate">{{ $product->name }}</div>
+                <div class="mt-auto flex items-center justify-between gap-2 px-3 py-2.5 min-h-[52px]">
+                    <div class="text-sm md:text-base font-extrabold text-black truncate">{{ $product->name }}</div>
 
                     <button type="button" aria-label="{{ __('add') }}"
                             class="add-btn flex-shrink-0 w-8 h-8 rounded-full bg-maroon text-white flex items-center justify-center">
