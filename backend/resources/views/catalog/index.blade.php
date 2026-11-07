@@ -49,43 +49,38 @@
     @endif
 
     {{-- Product grid: responsive columns with equal height cards --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mt-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mt-3 pb-24">
         @forelse ($products as $product)
-            <div class="product-card bg-white rounded-xl border border-[#e7ddd2] p-2" data-product-card>
-                <div class="card-content flex flex-col">
-                    {{-- Product Image (clickable for view modal) - half card height --}}
-                    <div class="bg-[#F1E7E0] rounded-lg h-56 flex items-center justify-center overflow-hidden cursor-pointer product-image"
-                         data-id="{{ $product->id }}"
-                         data-name="{{ $product->name }}"
-                         data-barcode="{{ $product->barcode }}"
-                         data-price="{{ $product->price }}"
-                         data-image="{{ $product->imageUrl() }}"
-                         data-desc="{{ $product->name }}">
-                        <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
-                    </div>
-
-                    <div class="text-xs font-semibold text-center text-gray-800 mt-1 leading-tight">{{ $product->name }}</div>
-
-                    {{-- Quantity selector (starts at 0) --}}
-                    <div class="flex items-center justify-between bg-cream rounded-lg px-2 py-1 mt-2">
-                        <button type="button" class="text-maroon font-semibold text-lg leading-none qty-minus" disabled>−</button>
-                        <input type="number" class="text-xs qty-value digits-en w-12 text-center border-0 bg-transparent focus:outline-none focus:ring-0" data-qty="0" value="0" min="0" step="1">
-                        <button type="button" class="text-maroon font-semibold text-lg leading-none qty-plus">+</button>
-                    </div>
+            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col" data-product-card
+                 data-id="{{ $product->id }}"
+                 data-name="{{ $product->name }}"
+                 data-barcode="{{ $product->barcode }}"
+                 data-price="{{ $product->price }}"
+                 data-image="{{ $product->imageUrl() }}">
+                {{-- Product image fills the top of the card (click opens view modal) --}}
+                <div class="aspect-[6/7] bg-[#F1E7E0] cursor-pointer product-image"
+                     data-id="{{ $product->id }}"
+                     data-name="{{ $product->name }}"
+                     data-barcode="{{ $product->barcode }}"
+                     data-price="{{ $product->price }}"
+                     data-image="{{ $product->imageUrl() }}">
+                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover" loading="lazy">
                 </div>
-                {{-- Card footer: Add button aligned at bottom --}}
-                <div class="card-footer mt-2">
-                    {{-- Add to cart button --}}
-                    <button type="button"
-                            class="add-btn w-full bg-maroon text-white text-xs rounded-lg py-1.5 opacity-50 cursor-not-allowed"
-                            disabled
-                            data-id="{{ $product->id }}"
-                            data-name="{{ $product->name }}"
-                            data-barcode="{{ $product->barcode }}"
-                            data-price="{{ $product->price }}"
-                            data-image="{{ $product->imageUrl() }}">
-                        {{ __('add') }}
+
+                {{-- Footer: name + round "+" button, which turns into a − qty + stepper once added --}}
+                <div class="flex items-center justify-between gap-2 px-3 py-2.5">
+                    <div class="text-sm font-bold text-gray-900 truncate">{{ $product->name }}</div>
+
+                    <button type="button" aria-label="{{ __('add') }}"
+                            class="add-btn flex-shrink-0 w-8 h-8 rounded-full bg-maroon text-white flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
                     </button>
+
+                    <div class="qty-stepper hidden flex-shrink-0 items-center gap-3 h-8 px-3 rounded-full bg-maroon text-white">
+                        <button type="button" class="qty-minus text-lg leading-none font-semibold">−</button>
+                        <span class="qty-value text-sm font-semibold digits-en min-w-[1ch] text-center">0</span>
+                        <button type="button" class="qty-plus text-lg leading-none font-semibold">+</button>
+                    </div>
                 </div>
             </div>
         @empty
@@ -98,8 +93,12 @@
 <div class="fixed bottom-0 inset-x-0 safe-bottom">
     <div class="max-w-7xl mx-auto px-4 p-3">
         <button id="review-order-btn"
-                class="w-full bg-[#25D366] text-white rounded-full py-3 text-sm font-medium">
-            🧾 {{ __('review_order') }}
+                class="w-full flex items-center justify-between bg-[#2E7D4F] text-white rounded-2xl px-5 py-4 shadow-lg">
+            <span class="text-base font-bold"><span id="cart-count" class="digits-en">0</span> {{ __('pcs') }}</span>
+            <span class="flex items-center gap-1.5 text-base font-bold">
+                {{ __('review_order') }}
+                <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
         </button>
     </div>
 </div>
@@ -201,24 +200,6 @@
     const translations = @json($translations);
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Draw every barcode from its stored number (CODE128 keeps leading zeros intact)
-    document.querySelectorAll('.barcode').forEach(function (el) {
-        try {
-            if (typeof JsBarcode !== 'undefined') {
-                JsBarcode(el, el.dataset.barcode, {
-                    format: 'CODE128',
-                    width: 1.3,
-                    height: 30,
-                    fontSize: 11,
-                    margin: 0,
-                    background: 'transparent',
-                });
-            }
-        } catch (e) {
-            console.warn('JsBarcode error:', e);
-        }
-    });
-
     const whatsappNumber = @json($whatsappNumber);
     // Cart starts fresh each page load
     let cart = {};
@@ -263,6 +244,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const pricePrefix = '{{ __('price_prefix') }}';
         if (totalEl) totalEl.textContent = total.toFixed(3) + ' ' + pricePrefix;
 
+        const countEl = document.getElementById('cart-count');
+        if (countEl) countEl.textContent = Object.values(cart).reduce((n, item) => n + item.qty, 0);
+
         // Enable/disable review order button
         if (reviewOrderBtn) {
             if (Object.keys(cart).length > 0) {
@@ -271,54 +255,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 reviewOrderBtn.disabled = true;
                 reviewOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
-    }
-
-    // Restore cart UI from localStorage on page load
-    function restoreCartUI() {
-        Object.keys(cart).forEach(id => {
-            const addBtn = document.querySelector('.add-btn[data-id="' + id + '"]');
-            if (addBtn) {
-                const card = addBtn.closest('[data-product-card]');
-                const qtyEl = card?.querySelector('.qty-value');
-                const minusBtn = card?.querySelector('.qty-minus');
-                const plusBtn = card?.querySelector('.qty-plus');
-                const qty = cart[id].qty;
-                if (qtyEl) {
-                    qtyEl.dataset.qty = qty;
-                    qtyEl.value = qty;
-                }
-                if (minusBtn) minusBtn.disabled = qty <= 0;
-                if (addBtn) {
-                    addBtn.disabled = false;
-                    addBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-maroon');
-                    addBtn.classList.add('bg-rose');
-                    addBtn.textContent = translations.added;
-                }
-            }
-        });
-    }
-
-    function updateCardUI(card, qty) {
-        const qtyEl = card.querySelector('.qty-value');
-        const minusBtn = card.querySelector('.qty-minus');
-        const plusBtn = card.querySelector('.qty-plus');
-        const addBtn = card.querySelector('.add-btn');
-        const id = addBtn.dataset.id;
-
-        if (qtyEl) {
-            qtyEl.dataset.qty = qty;
-            qtyEl.value = qty;
-        }
-        if (minusBtn) minusBtn.disabled = qty <= 0;
-        if (addBtn) {
-            if (qty > 0) {
-                addBtn.disabled = false;
-                addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                addBtn.disabled = true;
-                addBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
         }
     }
@@ -455,70 +391,38 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.target === orderModal) closeOrderModal();
     });
 
-    // Card quantity controls
+    // Card controls: "+" adds 1 to the cart and shows the stepper; going back to 0 removes it.
     document.querySelectorAll('[data-product-card]').forEach(function (card) {
-        const minus = card.querySelector('.qty-minus');
-        const plus = card.querySelector('.qty-plus');
-        const qtyEl = card.querySelector('.qty-value');
+        const id = card.dataset.id;
         const addBtn = card.querySelector('.add-btn');
-
-        function currentQty() {
-            return parseInt(qtyEl.dataset.qty, 10);
-        }
+        const stepper = card.querySelector('.qty-stepper');
+        const qtyEl = card.querySelector('.qty-value');
 
         function setQty(q) {
             q = Math.max(0, q);
-            qtyEl.dataset.qty = q;
-            qtyEl.value = q;
-            updateCardUI(card, q);
-            // If this product is already in the cart, keep the cart quantity in sync live.
-            if (cart[addBtn.dataset.id]) {
-                cart[addBtn.dataset.id].qty = q;
-                updateTotal();
-                saveCart();
+            if (q > 0) {
+                cart[id] = {
+                    name: card.dataset.name,
+                    barcode: card.dataset.barcode,
+                    price: parseFloat(card.dataset.price),
+                    image: card.dataset.image,
+                    qty: q,
+                };
+            } else {
+                delete cart[id];
             }
+            qtyEl.textContent = q;
+            addBtn.classList.toggle('hidden', q > 0);
+            stepper.classList.toggle('hidden', q === 0);
+            stepper.classList.toggle('flex', q > 0);
+            updateTotal();
+            saveCart();
         }
 
-        if (minus) minus.addEventListener('click', () => setQty(currentQty() - 1));
-        if (plus) plus.addEventListener('click', () => setQty(currentQty() + 1));
-        // Manual input in card
-        if (qtyEl) {
-            qtyEl.addEventListener('change', function () {
-                let val = parseInt(this.value, 10);
-                if (isNaN(val) || val < 0) val = 0;
-                this.value = val;
-                this.dataset.qty = val;
-                setQty(val);
-            });
-        }
-
-        if (addBtn) {
-            addBtn.addEventListener('click', function () {
-                const id = addBtn.dataset.id;
-                const qty = currentQty();
-                if (qty <= 0) return;
-                
-                if (cart[id]) {
-                    delete cart[id];
-                    addBtn.textContent = translations.add;
-                    addBtn.classList.remove('bg-rose');
-                    addBtn.classList.add('bg-maroon');
-                } else {
-                    cart[id] = {
-                        name: addBtn.dataset.name,
-                        barcode: addBtn.dataset.barcode,
-                        price: parseFloat(addBtn.dataset.price),
-                        image: addBtn.dataset.image,
-                        qty: qty,
-                    };
-                    addBtn.textContent = translations.added;
-                    addBtn.classList.remove('bg-maroon');
-                    addBtn.classList.add('bg-rose');
-                }
-                updateTotal();
-                saveCart();
-            });
-        }
+        const currentQty = () => (cart[id] ? cart[id].qty : 0);
+        addBtn.addEventListener('click', () => setQty(1));
+        card.querySelector('.qty-plus').addEventListener('click', () => setQty(currentQty() + 1));
+        card.querySelector('.qty-minus').addEventListener('click', () => setQty(currentQty() - 1));
     });
 
     updateTotal();
