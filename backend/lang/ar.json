@@ -1,6 +1,5 @@
 {
     "store_name": "AL QAMAR / GENERAL TRADING",
-    "owner_name": "نادر منير محمود",
     "all_categories": "الكل",
     "makeup_tools": "أدوات المكياج",
     "accessories": "الإكسسوارات",
@@ -13,7 +12,7 @@
     "total": "المجموع",
     "confirm_order_whatsapp": "تأكيد الطلب عبر واتساب",
     "order_message": "مرحباً AL QAMAR / GENERAL TRADING، أود تأكيد هذا الطلب:",
-    "order_item_format": "{index}) {name}\n\u2022 كود: #{barcode}\n\u2022 الكمية: {qty}\n\u2022 السعر: {price}\n\u2022 الصورة: {image}",
+    "order_item_format": "{index}) {name}\n• كود: #{barcode}\n• الكمية: {qty}\n• السعر: {price}\n• الصورة: {image}",
     "order_total_format": "المجموع: {total}",
     "no_products": "لا توجد منتجات في هذا القسم بعد.",
     "review_order": "مراجعة الطلب",
@@ -76,5 +75,16 @@
     "product_status_updated": "تم تحديث حالة المنتج.",
     "icon": "أيقونة",
     "sort_order": "الترتيب",
-    "save": "حفظ"
+    "save": "حفظ",
+    "admin_panel": "لوحة الإدارة",
+    "product": "المنتج",
+    "barcode": "الباركود",
+    "price": "السعر",
+    "default_qty": "الكمية الافتراضية",
+    "display_order": "ترتيب العرض",
+    "sort_hint": "الأرقام الأصغر تظهر أولاً",
+    "category_name": "اسم القسم",
+    "edit": "تعديل",
+    "no_products_yet": "لا توجد منتجات بعد.",
+    "add_new_product": "إضافة منتج جديد"
 }

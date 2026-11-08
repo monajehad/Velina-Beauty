@@ -18,10 +18,6 @@
                class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'en' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
                 EN
             </a>
-            <a href="{{ route('lang.switch', 'ar') }}"
-               class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'ar' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
-                ع
-            </a>
             <a href="{{ route('lang.switch', 'fa') }}"
                class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'fa' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
                 فا
@@ -114,8 +110,7 @@
         </div>
         <div class="p-4">
             <div class="text-[11px] text-gray-500 digits-en mb-1" id="modal-barcode"></div>
-            <h3 id="modal-name" class="text-lg font-semibold text-gray-800 mb-2"></h3>
-            <p id="modal-price" class="text-maroon font-bold text-xl mb-4"></p>
+            <h3 id="modal-name" class="text-lg font-semibold text-gray-800"></h3>
         </div>
     </div>
 </div>
@@ -212,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const productModal = document.getElementById('product-modal');
     const modalImage = document.getElementById('modal-image');
     const modalName = document.getElementById('modal-name');
-    const modalPrice = document.getElementById('modal-price');
     const modalBarcode = document.getElementById('modal-barcode');
     const modalClose = document.getElementById('modal-close');
 
@@ -262,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function openProductModal(product) {
         modalImage.src = product.image;
         modalName.textContent = product.name;
-        modalPrice.textContent = parseFloat(product.price).toFixed(3) + ' ' + '{{ __('price_prefix') }}';
         modalBarcode.textContent = 'BC: ' + product.barcode;
         productModal.classList.remove('hidden');
         productModal.classList.add('flex');

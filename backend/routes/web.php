@@ -21,21 +21,28 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 | Language switcher
 |--------------------------------------------------------------------------
 */
+// Storefront languages: English and Farsi only (Arabic is used by the dashboard)
 Route::get('/lang/{locale}', function ($locale) {
-    $availableLocales = config('app.available_locales', ['en', 'ar', 'fa']);
-    if (in_array($locale, $availableLocales)) {
-        session(['locale' => $locale]);
-    }
+    session(['locale' => $locale]);
     return redirect()->route('catalog.index', ['locale' => $locale]);
-})->name('lang.switch');
+})->where('locale', 'en|fa')->name('lang.switch');
+
+// Old Arabic storefront links go to English
+Route::redirect('/ar', '/en');
 
 /*
 |--------------------------------------------------------------------------
 | Admin panel (protected by auth + is_admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin', 'admin_locale'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Dashboard language switcher (English / Arabic)
+    Route::get('lang/{locale}', function ($locale) {
+        session(['admin_locale' => $locale]);
+        return back();
+    })->where('locale', 'en|ar')->name('lang');
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::patch('products/{product}/toggle', [ProductController::class, 'toggleActive'])->name('products.toggle');
@@ -52,6 +59,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin'])->group(
 |--------------------------------------------------------------------------
 */
 Route::redirect('/', '/en');
-Route::prefix('{locale}')->middleware('locale')->group(function () {
+Route::prefix('{locale}')->where(['locale' => 'en|fa'])->middleware('locale')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
-})->where('locale', 'en|ar|fa');
+});

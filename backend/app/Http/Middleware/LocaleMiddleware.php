@@ -12,7 +12,7 @@ class LocaleMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $availableLocales = config('app.available_locales', ['en', 'fa']);
+        $availableLocales = ['en', 'fa'];
 
         $locale = $request->segment(1);
 

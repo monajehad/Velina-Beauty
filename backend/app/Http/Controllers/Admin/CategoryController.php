@@ -28,7 +28,7 @@ class CategoryController extends Controller
 
         Category::create($data);
 
-        return back()->with('status', 'Category added.');
+        return back()->with('status', 'category_added');
     }
 
     public function update(Request $request, Category $category)
@@ -43,17 +43,17 @@ class CategoryController extends Controller
 
         $category->update($data);
 
-        return back()->with('status', 'Category updated.');
+        return back()->with('status', 'category_updated');
     }
 
     public function destroy(Category $category)
     {
         if ($category->products()->exists()) {
-            return back()->withErrors(['category' => 'Remove or move this category\'s products first.']);
+            return back()->withErrors(['category' => 'category_has_products']);
         }
 
         $category->delete();
 
-        return back()->with('status', 'Category deleted.');
+        return back()->with('status', 'category_deleted');
     }
 }

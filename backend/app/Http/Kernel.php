@@ -46,5 +46,6 @@ class Kernel extends HttpKernel
 
         // Custom: protects every /admin/* route, added in routes/web.php
         'is_admin' => \App\Http\Middleware\IsAdmin::class,
+        'admin_locale' => \App\Http\Middleware\AdminLocaleMiddleware::class,
     ];
 }

@@ -44,7 +44,7 @@ class ProductController extends Controller
 
         Product::create($data);
 
-        return redirect()->route('admin.products.index')->with('status', 'Product added.');
+        return redirect()->route('admin.products.index')->with('status', 'product_added');
     }
 
     public function edit(Product $product)
@@ -66,7 +66,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return redirect()->route('admin.products.index')->with('status', 'Product updated.');
+        return redirect()->route('admin.products.index')->with('status', 'product_updated');
     }
 
     public function destroy(Product $product)
@@ -76,7 +76,7 @@ class ProductController extends Controller
         }
         $product->delete();
 
-        return back()->with('status', 'Product deleted.');
+        return back()->with('status', 'product_deleted');
     }
 
     /**
@@ -86,7 +86,7 @@ class ProductController extends Controller
     {
         $product->update(['is_active' => ! $product->is_active]);
 
-        return back()->with('status', 'Product status updated.');
+        return back()->with('status', 'product_status_updated');
     }
 
     private function validated(Request $request, ?int $ignoreId = null): array
