@@ -8,7 +8,7 @@
     {{-- Top bar: logo + language switcher --}}
     <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-            <img src="{{ asset('images/logo.png') }}" alt="AL QAMAR / GENERAL TRADING" class="w-10 h-10 rounded-full object-cover">
+            <img src="{{ asset('images/logo.png') }}?v=2" alt="AL QAMAR / GENERAL TRADING" class="w-10 h-10 rounded-full object-cover">
             <div>
                 <div class="text-sm font-semibold text-maroon">{{ __('store_name') }}</div>
             </div>
