@@ -196,11 +196,14 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const whatsappNumber = @json($whatsappNumber);
-    // Cart starts fresh each page load
+    // Cart lives in sessionStorage: it survives switching categories (page reloads)
+    // within the same tab, and is gone once the tab is closed.
+    const CART_KEY = 'alqamar_cart';
     let cart = {};
+    try { cart = JSON.parse(sessionStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; }
 
     function saveCart() {
-        localStorage.setItem('velina_cart', JSON.stringify(cart));
+        try { sessionStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
     }
 
     // Product Modal elements (View Only)
@@ -391,6 +394,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const stepper = card.querySelector('.qty-stepper');
         const qtyEl = card.querySelector('.qty-value');
 
+        function render(q) {
+            qtyEl.textContent = q;
+            addBtn.classList.toggle('hidden', q > 0);
+            stepper.classList.toggle('hidden', q === 0);
+            stepper.classList.toggle('flex', q > 0);
+        }
+
         function setQty(q) {
             q = Math.max(0, q);
             if (q > 0) {
@@ -404,10 +414,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 delete cart[id];
             }
-            qtyEl.textContent = q;
-            addBtn.classList.toggle('hidden', q > 0);
-            stepper.classList.toggle('hidden', q === 0);
-            stepper.classList.toggle('flex', q > 0);
+            render(q);
             updateTotal();
             saveCart();
         }
@@ -416,6 +423,16 @@ document.addEventListener('DOMContentLoaded', function () {
         addBtn.addEventListener('click', () => setQty(1));
         card.querySelector('.qty-plus').addEventListener('click', () => setQty(currentQty() + 1));
         card.querySelector('.qty-minus').addEventListener('click', () => setQty(currentQty() - 1));
+
+        // Show items already picked in another category
+        render(currentQty());
+    });
+
+    // Order sent on WhatsApp: start a new cart
+    orderWhatsAppBtn.addEventListener('click', function () {
+        cart = {};
+        saveCart();
+        setTimeout(() => window.location.reload(), 500);
     });
 
     updateTotal();
