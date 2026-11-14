@@ -147,15 +147,11 @@
                 {{-- Items will be injected here --}}
             </div>
             
-            {{-- Order Summary --}}
-            <div class="border-t border-gray-200 mt-4 pt-4 space-y-2">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{ __('subtotal') }}</span>
-                    <span id="order-subtotal" class="font-medium digits-en">$0.00</span>
-                </div>
+            {{-- Order Summary: total pieces only (no prices shown to the customer) --}}
+            <div class="border-t border-gray-200 mt-4 pt-4">
                 <div class="flex justify-between text-lg font-bold text-maroon">
                     <span>{{ __('total') }}</span>
-                    <span id="order-total" class="digits-en">$0.00</span>
+                    <span><span id="order-pcs" class="digits-en">0</span> {{ __('pcs') }}</span>
                 </div>
             </div>
 
@@ -216,8 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Order Modal elements
     const orderModal = document.getElementById('order-modal');
     const orderItems = document.getElementById('order-items');
-    const orderSubtotal = document.getElementById('order-subtotal');
-    const orderTotal = document.getElementById('order-total');
     const orderNumberEl = document.getElementById('order-number');
     const customerNameEl = document.getElementById('customer-name');
     const customerPhoneEl = document.getElementById('customer-phone');
@@ -286,12 +280,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="flex-1 min-w-0">
                         <h4 class="text-sm font-medium text-gray-800 truncate">${item.name}</h4>
                         <p class="text-[10px] text-gray-500 digits-en">BC: ${item.barcode}</p>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-xs text-gray-500">${item.price.toFixed(3)} ${pricePrefix}</span>
-                            <span class="text-xs text-gray-400">×</span>
-                            <span class="text-xs font-medium digits-en">${item.qty}</span>
-                            <span class="text-xs text-gray-400">=</span>
-                            <span class="text-xs font-semibold text-maroon digits-en">${itemTotal.toFixed(3)} ${pricePrefix}</span>
+                        <div class="text-xs mt-1">
+                            <span class="text-gray-500">{{ __('quantity') }}:</span>
+                            <span class="font-semibold text-maroon digits-en">${item.qty}</span>
                         </div>
                     </div>
                 </div>
@@ -299,8 +290,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         
         orderItems.innerHTML = itemsHtml;
-        orderSubtotal.textContent = subtotal.toFixed(3) + ' ' + pricePrefix;
-        orderTotal.textContent = subtotal.toFixed(3) + ' ' + pricePrefix;
+        document.getElementById('order-pcs').textContent =
+            Object.values(cart).reduce((n, item) => n + item.qty, 0);
         
         // Generate and display order number
         const orderNumber = generateOrderNumber();
