@@ -268,12 +268,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function openOrderModal() {
         // Build order items HTML
         let itemsHtml = '';
-        let subtotal = 0;
-        const pricePrefix = '{{ __('price_prefix') }}';
-        
+        const totalPcs = Object.values(cart).reduce((n, item) => n + item.qty, 0);
+
         Object.values(cart).forEach((item, index) => {
-            const itemTotal = item.price * item.qty;
-            subtotal += itemTotal;
             itemsHtml += `
                 <div class="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
@@ -290,8 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         
         orderItems.innerHTML = itemsHtml;
-        document.getElementById('order-pcs').textContent =
-            Object.values(cart).reduce((n, item) => n + item.qty, 0);
+        document.getElementById('order-pcs').textContent = totalPcs;
         
         // Generate and display order number
         const orderNumber = generateOrderNumber();
@@ -300,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Function to build WhatsApp message with current customer data
         function buildWhatsAppMessage() {
             const lines = Object.values(cart).map((item, i) =>
-                `${i + 1}) ${item.name}\n\u2022 Barcode: #${item.barcode}\n\u2022 Qty: ${item.qty}\n\u2022 Price: ${(item.price * item.qty).toFixed(3)} ${pricePrefix}\n\u2022 Image: ${item.image}`
+                `${i + 1}) ${item.name}\n\u2022 Barcode: #${item.barcode}\n\u2022 Qty: ${item.qty}\n\u2022 Image: ${item.image}`
             );
             
             const customerName = customerNameEl.value.trim();
@@ -317,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 message += `---------------------------------\n`;
                 message += `${lines.join('\n\n')}\n\n`;
                 message += `---------------------------------\n`;
-                message += `Total: ${subtotal.toFixed(3)} ${pricePrefix}`;
+                message += `Total: ${totalPcs} pcs`;
             } else {
                 message = translations.order_message;
             }
