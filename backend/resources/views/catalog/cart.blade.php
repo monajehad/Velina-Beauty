@@ -288,9 +288,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // WhatsApp: after sending, clear the stored cart (no duplicates later) but keep
     // this page as-is so the order can still be printed. No reload: in-app browsers
     // open the link in the same tab and a reload would cancel it.
+    // Save the order for the admin Orders page. keepalive lets the request finish
+    // even if WhatsApp opens in this same tab; a failure never blocks the order.
+    function saveOrder() {
+        try {
+            fetch(@json(route('catalog.cart.order', ['locale' => app()->getLocale()])), {
+                method: 'POST',
+                keepalive: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({
+                    order_number: orderNumber,
+                    customer_name: nameEl.value.trim(),
+                    customer_phone: phoneEl.value.trim(),
+                    customer_address: addressEl.value.trim(),
+                    items: Object.entries(cart).map(([id, item]) => ({ id: Number(id), qty: item.qty })),
+                }),
+            }).catch(err => console.warn('Order not saved', err));
+        } catch (err) { console.warn('Order not saved', err); }
+    }
+
     waBtn.addEventListener('click', function (e) {
         if (sent || !Object.keys(cart).length) { e.preventDefault(); return; }
         updateLinkAndPrint();
+        saveOrder();
         setTimeout(function () {
             sent = true;
             [CART_KEY, ORDER_NO_KEY].forEach(store.remove);

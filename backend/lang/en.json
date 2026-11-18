@@ -95,5 +95,14 @@
     "print_order": "Print / Save as PDF",
     "remove": "Remove",
     "order_sent": "Order sent on WhatsApp. You can still print it.",
-    "date": "Date"
+    "date": "Date",
+    "orders": "Orders",
+    "view": "View",
+    "download_pdf": "Download PDF",
+    "print": "Print",
+    "no_orders_yet": "No orders yet.",
+    "order_deleted": "Order deleted.",
+    "confirm_delete_order": "Delete this order?",
+    "search_orders_placeholder": "Search by order number, name or phone...",
+    "preparing_pdf": "Preparing PDF…"
 }

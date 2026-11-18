@@ -24,6 +24,7 @@
 
             <nav class="space-y-1 text-sm">
                 <a href="{{ route('admin.dashboard') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">{{ __('dashboard') }}</a>
+                <a href="{{ route('admin.orders.index') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">{{ __('orders') }}</a>
                 <a href="{{ route('admin.products.index') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">{{ __('products') }}</a>
                 <a href="{{ route('admin.categories.index') }}" class="block px-2 py-1.5 rounded hover:bg-white/10">{{ __('categories') }}</a>
                 <a href="{{ route('catalog.index', ['locale' => 'en']) }}" target="_blank" class="block px-2 py-1.5 rounded hover:bg-white/10">{{ __('view_storefront') }} ↗</a>

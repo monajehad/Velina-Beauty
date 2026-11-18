@@ -94,5 +94,14 @@
     "print_order": "طباعة / حفظ PDF",
     "remove": "حذف",
     "order_sent": "تم إرسال الطلب عبر واتساب. يمكنك طباعته الآن.",
-    "date": "التاريخ"
+    "date": "التاريخ",
+    "orders": "الطلبات",
+    "view": "عرض",
+    "download_pdf": "تنزيل PDF",
+    "print": "طباعة",
+    "no_orders_yet": "لا توجد طلبات بعد.",
+    "order_deleted": "تم حذف الطلب.",
+    "confirm_delete_order": "هل تريد حذف هذا الطلب؟",
+    "search_orders_placeholder": "ابحث برقم الطلب أو الاسم أو الهاتف...",
+    "preparing_pdf": "جاري تجهيز PDF…"
 }
