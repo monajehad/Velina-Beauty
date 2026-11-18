@@ -16,25 +16,25 @@
         <thead>
             <tr class="text-xs text-gray-500 border-b">
                 <th class="p-3 text-start">{{ __('order_number') }}</th>
-                <th class="text-start">{{ __('date') }}</th>
-                <th class="text-start">{{ __('customer_name') }}</th>
-                <th class="text-start">{{ __('customer_phone') }}</th>
-                <th class="text-start">{{ __('total') }}</th>
-                <th class="text-start">PDF</th>
-                <th></th>
+                <th class="px-3 text-start">{{ __('date') }}</th>
+                <th class="px-3 text-start">{{ __('customer_name') }}</th>
+                <th class="px-3 text-start">{{ __('customer_phone') }}</th>
+                <th class="px-3 text-start">{{ __('total') }}</th>
+                <th class="px-3 text-start">PDF</th>
+                <th class="px-3"></th>
             </tr>
         </thead>
         <tbody>
             @forelse ($orders as $order)
                 <tr class="border-b last:border-0 hover:bg-cream/50">
-                    <td class="p-3 font-mono font-semibold text-maroon" dir="ltr">
-                        <a href="{{ route('admin.orders.show', $order) }}" class="hover:underline">{{ $order->order_number }}</a>
+                    <td class="px-3 py-3 font-mono font-semibold text-maroon whitespace-nowrap">
+                        <a href="{{ route('admin.orders.show', $order) }}" class="hover:underline" dir="ltr">{{ $order->order_number }}</a>
                     </td>
-                    <td dir="ltr" class="text-start whitespace-nowrap">{{ $order->created_at->format('Y-m-d H:i') }}</td>
-                    <td>{{ $order->customer_name ?: '—' }}</td>
-                    <td dir="ltr" class="text-start">{{ $order->customer_phone ?: '—' }}</td>
-                    <td class="whitespace-nowrap">{{ $order->total_pcs }} {{ __('pcs') }}</td>
-                    <td>
+                    <td class="px-3 whitespace-nowrap"><span dir="ltr">{{ $order->created_at->format('Y-m-d H:i') }}</span></td>
+                    <td class="px-3">{{ $order->customer_name ?: '—' }}</td>
+                    <td class="px-3 whitespace-nowrap"><span dir="ltr">{{ $order->customer_phone ?: '—' }}</span></td>
+                    <td class="px-3 whitespace-nowrap">{{ $order->total_pcs }} {{ __('pcs') }}</td>
+                    <td class="px-3">
                         <a href="{{ route('admin.orders.show', [$order, 'pdf' => 1]) }}"
                            class="inline-flex items-center gap-1 text-xs bg-maroon text-white rounded-lg px-3 py-1.5 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>

@@ -28,14 +28,14 @@
         </div>
         <div class="text-end">
             <div class="text-xs text-gray-600">{{ __('order_number') }}</div>
-            <div class="font-bold font-mono" dir="ltr">{{ $order->order_number }}</div>
+            <div class="font-bold font-mono"><span dir="ltr">{{ $order->order_number }}</span></div>
             <div class="text-xs text-gray-600 mt-1">{{ __('date') }}: <span dir="ltr">{{ $order->created_at->format('Y-m-d H:i') }}</span></div>
         </div>
     </div>
 
     <div class="grid grid-cols-3 gap-3 mb-4 text-xs">
         <div><div class="text-gray-500">{{ __('customer_name') }}</div><div class="font-semibold">{{ $order->customer_name ?: '—' }}</div></div>
-        <div><div class="text-gray-500">{{ __('customer_phone') }}</div><div class="font-semibold" dir="ltr">{{ $order->customer_phone ?: '—' }}</div></div>
+        <div><div class="text-gray-500">{{ __('customer_phone') }}</div><div class="font-semibold"><span dir="ltr">{{ $order->customer_phone ?: '—' }}</span></div></div>
         <div><div class="text-gray-500">{{ __('customer_address') }}</div><div class="font-semibold whitespace-pre-line">{{ $order->customer_address ?: '—' }}</div></div>
     </div>
 
@@ -55,7 +55,7 @@
                     <td class="border border-gray-300 p-2 text-center">{{ $i + 1 }}</td>
                     <td class="border border-gray-300 p-1"><img src="{{ $item['image'] }}" alt="" class="w-12 h-14 object-cover rounded mx-auto"></td>
                     <td class="border border-gray-300 p-2 font-semibold">{{ $item['name'] }}</td>
-                    <td class="border border-gray-300 p-2" dir="ltr">{{ $item['barcode'] }}</td>
+                    <td class="border border-gray-300 p-2"><span dir="ltr">{{ $item['barcode'] }}</span></td>
                     <td class="border border-gray-300 p-2 text-center font-bold">{{ $item['qty'] }}</td>
                 </tr>
             @endforeach
