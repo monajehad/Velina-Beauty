@@ -62,6 +62,4 @@ Route::redirect('/', '/en');
 Route::prefix('{locale}')->where(['locale' => 'en|fa'])->middleware('locale')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
     Route::get('/cart', [CatalogController::class, 'cart'])->name('catalog.cart');
-    Route::post('/cart/pdf', [CatalogController::class, 'storeOrderPdf'])
-        ->middleware('throttle:10,1')->name('catalog.cart.pdf');
 });

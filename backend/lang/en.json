@@ -95,8 +95,5 @@
     "print_order": "Print / Save as PDF",
     "remove": "Remove",
     "order_sent": "Order sent on WhatsApp. You can still print it.",
-    "date": "Date",
-    "preparing_order": "Preparing your order…",
-    "send_order_pdf": "Send order PDF",
-    "pdf_downloaded_hint": "The order PDF was saved to your Downloads — drag it into the WhatsApp chat to send it."
+    "date": "Date"
 }
