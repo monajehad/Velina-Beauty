@@ -135,13 +135,19 @@
 @endsection
 
 @push('scripts')
+{{-- Builds the order PDF in the browser (keeps Arabic/Persian text shaped correctly) --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const whatsappNumber = @json($whatsappNumber);
     const orderMessage = @json(__('order_message'));
+    const pdfEndpoint = @json(route('catalog.cart.pdf', ['locale' => app()->getLocale()]));
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const t = {
         quantity: @json(__('quantity')),
         remove: @json(__('remove')),
+        preparing: @json(__('preparing_order')),
     };
 
     // Same storage keys as the catalog page
@@ -187,12 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
     phoneEl.value = customer.phone || '';
     addressEl.value = customer.address || '';
 
-    function buildWhatsAppMessage() {
+    function buildWhatsAppMessage(pdfUrl) {
         const lines = Object.values(cart).map((item, i) =>
             `${i + 1}) ${item.name}\n• Barcode: #${item.barcode}\n• Qty: ${item.qty}\n• Image: ${item.image}`
         );
         let message = `${orderMessage}\n\n`;
         message += `Order #: ${orderNumber}\n`;
+        if (pdfUrl) message += `PDF: ${pdfUrl}\n`;
         if (nameEl.value.trim()) message += `Customer: ${nameEl.value.trim()}\n`;
         if (phoneEl.value.trim()) message += `Phone: ${phoneEl.value.trim()}\n`;
         if (addressEl.value.trim()) message += `Address: ${addressEl.value.trim()}\n`;
@@ -203,8 +210,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return message;
     }
 
+    const whatsappLink = (pdfUrl) =>
+        `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage(pdfUrl))}`;
+
     function updateLinkAndPrint() {
-        waBtn.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
+        waBtn.href = whatsappLink(null);
         el('p-name').textContent = nameEl.value.trim() || '—';
         el('p-phone').textContent = phoneEl.value.trim() || '—';
         el('p-address').textContent = addressEl.value.trim() || '—';
@@ -285,18 +295,86 @@ document.addEventListener('DOMContentLoaded', function () {
         updateLinkAndPrint();
     }));
 
-    // WhatsApp: after sending, clear the stored cart (no duplicates later) but keep
-    // this page as-is so the order can still be printed. No reload: in-app browsers
-    // open the link in the same tab and a reload would cancel it.
-    waBtn.addEventListener('click', function (e) {
-        if (sent || !Object.keys(cart).length) { e.preventDefault(); return; }
+    // ---- Order PDF: render the print sheet to an A4 PDF in the browser ----
+    async function makePdfBlob() {
+        const wrap = document.createElement('div');
+        wrap.dir = document.documentElement.dir;
+        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;padding:36px;background:#fff;';
+        const clone = el('print-sheet').cloneNode(true);
+        clone.removeAttribute('id');
+        clone.classList.remove('hidden');
+        wrap.appendChild(clone);
+        document.body.appendChild(wrap);
+        try {
+            await Promise.all([...wrap.querySelectorAll('img')].map(img =>
+                img.complete ? null : new Promise(r => { img.onload = img.onerror = r; })));
+            const canvas = await html2canvas(wrap, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            const pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const imgH = canvas.height * pageW / canvas.width;
+            const img = canvas.toDataURL('image/jpeg', 0.85);
+            for (let y = 0; y < imgH; y += pageH) {
+                if (y > 0) pdf.addPage();
+                pdf.addImage(img, 'JPEG', 0, -y, pageW, imgH);
+            }
+            return pdf.output('blob');
+        } finally {
+            wrap.remove();
+        }
+    }
+
+    async function uploadPdf(blob) {
+        const form = new FormData();
+        form.append('pdf', blob, `${orderNumber}.pdf`);
+        form.append('order_number', orderNumber);
+        const res = await fetch(pdfEndpoint, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: form,
+        });
+        if (!res.ok) throw new Error('PDF upload failed: ' + res.status);
+        return (await res.json()).url;
+    }
+
+    // WhatsApp: make + upload the PDF, then open WhatsApp with its link in the message.
+    // If the PDF fails for any reason, the order is still sent without it.
+    // After sending, the stored cart is cleared (no duplicates) but this page stays
+    // as-is so the order can still be printed.
+    let busy = false;
+    waBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+        if (sent || busy || !Object.keys(cart).length) return;
+        busy = true;
+        const label = waBtn.innerHTML;
+        waBtn.textContent = t.preparing;
+        waBtn.classList.add('opacity-70', 'pointer-events-none');
+
+        // Open the tab now, while the tap still counts as a user action (popup blockers)
+        const win = window.open('', '_blank');
+
         updateLinkAndPrint();
-        setTimeout(function () {
-            sent = true;
-            [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
-            el('sent-notice').classList.remove('hidden');
-            render();
-        }, 1000);
+        let pdfUrl = null;
+        try {
+            pdfUrl = await uploadPdf(await makePdfBlob());
+        } catch (err) {
+            console.warn(err);
+        }
+        const url = whatsappLink(pdfUrl);
+
+        sent = true;
+        [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
+        el('sent-notice').classList.remove('hidden');
+        waBtn.innerHTML = label;
+        waBtn.classList.remove('opacity-70', 'pointer-events-none');
+        busy = false;
+        render();
+
+        if (win && !win.closed) {
+            win.location.href = url;
+        } else {
+            window.location.href = url; // in-app browsers that block new tabs
+        }
     });
 
     // Print / Save as PDF: the browser's print dialog offers "Save as PDF".
