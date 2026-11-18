@@ -104,5 +104,8 @@
     "order_deleted": "Order deleted.",
     "confirm_delete_order": "Delete this order?",
     "search_orders_placeholder": "Search by order number, name or phone...",
-    "preparing_pdf": "Preparing PDF…"
+    "preparing_pdf": "Preparing PDF…",
+    "sending_order": "Sending your order…",
+    "order_sent_server": "Your order was sent ✓ We will contact you soon.",
+    "sent_by_server": "PDF sent to WhatsApp by the server"
 }

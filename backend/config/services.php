@@ -28,6 +28,21 @@ return [
 
     'whatsapp' => [
         'number' => env('WHATSAPP_NUMBER'),
+
+        // Server-side sending of the order PDF (see App\Services\WhatsAppSender).
+        // Leave WHATSAPP_DRIVER empty to keep the normal "open WhatsApp" button.
+        'driver' => env('WHATSAPP_DRIVER'),
+        'meta' => [
+            'token' => env('WHATSAPP_META_TOKEN'),
+            'phone_number_id' => env('WHATSAPP_META_PHONE_NUMBER_ID'),
+            'version' => env('WHATSAPP_META_VERSION', 'v21.0'),
+            'template' => env('WHATSAPP_META_TEMPLATE'),
+            'template_lang' => env('WHATSAPP_META_TEMPLATE_LANG', 'en'),
+        ],
+        'ultramsg' => [
+            'instance' => env('WHATSAPP_ULTRAMSG_INSTANCE'),
+            'token' => env('WHATSAPP_ULTRAMSG_TOKEN'),
+        ],
     ],
 
 ];

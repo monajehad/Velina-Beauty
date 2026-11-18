@@ -14,9 +14,12 @@ class Order extends Model
         'items',
         'total_pcs',
         'locale',
+        'pdf_path',
+        'whatsapp_sent_at',
     ];
 
     protected $casts = [
         'items' => 'array',
+        'whatsapp_sent_at' => 'datetime',
     ];
 }

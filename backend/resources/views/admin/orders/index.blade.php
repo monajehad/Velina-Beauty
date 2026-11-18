@@ -33,9 +33,14 @@
                     <td class="px-3 whitespace-nowrap"><span dir="ltr">{{ $order->created_at->format('Y-m-d H:i') }}</span></td>
                     <td class="px-3">{{ $order->customer_name ?: '—' }}</td>
                     <td class="px-3 whitespace-nowrap"><span dir="ltr">{{ $order->customer_phone ?: '—' }}</span></td>
-                    <td class="px-3 whitespace-nowrap">{{ $order->total_pcs }} {{ __('pcs') }}</td>
+                    <td class="px-3 whitespace-nowrap">
+                        {{ $order->total_pcs }} {{ __('pcs') }}
+                        @if ($order->whatsapp_sent_at)
+                            <span class="ms-1 text-[10px] bg-green-50 text-green-700 rounded-full px-2 py-0.5" title="{{ __('sent_by_server') }}">WhatsApp ✓</span>
+                        @endif
+                    </td>
                     <td class="px-3">
-                        <a href="{{ route('admin.orders.show', [$order, 'pdf' => 1]) }}"
+                        <a href="{{ $order->pdf_path ? asset('storage/' . $order->pdf_path) : route('admin.orders.show', [$order, 'pdf' => 1]) }}" @if ($order->pdf_path) target="_blank" @endif
                            class="inline-flex items-center gap-1 text-xs bg-maroon text-white rounded-lg px-3 py-1.5 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
                             {{ __('download_pdf') }}

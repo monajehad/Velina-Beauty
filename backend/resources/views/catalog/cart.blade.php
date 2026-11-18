@@ -313,16 +313,73 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) { console.warn('Order not saved', err); }
     }
 
+    function markSent(noticeText) {
+        sent = true;
+        [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
+        if (noticeText) el('sent-notice').textContent = noticeText;
+        el('sent-notice').classList.remove('hidden');
+        render();
+    }
+
+    // Server-side WhatsApp (when configured): the PDF is made here, and the server
+    // sends it to the store's WhatsApp number. The customer doesn't open WhatsApp.
+    // If anything fails, fall back to the normal WhatsApp text message.
+    const serverWhatsApp = @json($serverWhatsApp);
+    let sending = false;
+    async function sendViaServer() {
+        if (sending) return;
+        sending = true;
+        const label = waBtn.innerHTML;
+        waBtn.textContent = @json(__('sending_order'));
+        waBtn.classList.add('opacity-70', 'pointer-events-none');
+
+        let ok = false;
+        try {
+            const pdf = await makePdf();
+            const form = new FormData();
+            form.append('pdf', pdf.output('blob'), `${orderNumber}.pdf`);
+            form.append('order_number', orderNumber);
+            form.append('customer_name', nameEl.value.trim());
+            form.append('customer_phone', phoneEl.value.trim());
+            form.append('customer_address', addressEl.value.trim());
+            form.append('items', JSON.stringify(Object.entries(cart).map(([id, item]) => ({ id: Number(id), qty: item.qty }))));
+            const res = await fetch(@json(route('catalog.cart.send', ['locale' => app()->getLocale()])), {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: form,
+            });
+            ok = res.ok && (await res.json()).sent === true;
+        } catch (err) {
+            console.warn(err);
+        }
+
+        waBtn.innerHTML = label;
+        waBtn.classList.remove('opacity-70', 'pointer-events-none');
+        sending = false;
+
+        if (ok) {
+            markSent(@json(__('order_sent_server')));
+        } else {
+            saveOrder();
+            const fallback = waBtn.href;
+            markSent();
+            window.location.href = fallback;
+        }
+    }
+
     waBtn.addEventListener('click', function (e) {
         if (sent || !Object.keys(cart).length) { e.preventDefault(); return; }
         updateLinkAndPrint();
+        if (serverWhatsApp) {
+            e.preventDefault();
+            sendViaServer();
+            return;
+        }
         saveOrder();
-        setTimeout(function () {
-            sent = true;
-            [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
-            el('sent-notice').classList.remove('hidden');
-            render();
-        }, 1000);
+        setTimeout(() => markSent(), 1000);
     });
 
     // Download PDF: render the order sheet to an A4 PDF in the browser

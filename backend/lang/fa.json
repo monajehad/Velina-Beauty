@@ -87,5 +87,7 @@
     "product": "محصول",
     "barcode": "بارکد",
     "download_pdf": "دانلود PDF",
-    "preparing_pdf": "در حال آماده‌سازی PDF…"
+    "preparing_pdf": "در حال آماده‌سازی PDF…",
+    "sending_order": "در حال ارسال سفارش…",
+    "order_sent_server": "سفارش شما ارسال شد ✓ به زودی با شما تماس می‌گیریم."
 }
