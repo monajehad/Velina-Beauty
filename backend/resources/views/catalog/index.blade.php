@@ -198,8 +198,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cart lives in sessionStorage: it survives switching categories (page reloads)
     // within the same tab, and is gone once the tab is closed.
     const CART_KEY = 'alqamar_cart';
+    // A manual refresh starts a new cart; moving between categories keeps it.
     let cart = {};
-    try { cart = JSON.parse(sessionStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; }
+    const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    const isReload = navEntry ? navEntry.type === 'reload'
+                              : (performance.navigation && performance.navigation.type === 1);
+    if (isReload) {
+        try { sessionStorage.removeItem(CART_KEY); } catch (e) {}
+    } else {
+        try { cart = JSON.parse(sessionStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; }
+    }
 
     function saveCart() {
         try { sessionStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
