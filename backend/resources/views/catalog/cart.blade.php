@@ -85,8 +85,8 @@
                 </a>
                 <button id="print-btn" type="button"
                         class="w-full flex items-center justify-center gap-2 border-2 border-maroon text-maroon rounded-full py-2.5 font-semibold text-sm hover:bg-maroon hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
-                    {{ __('print_order') }}
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+                    <span id="pdf-label">{{ __('download_pdf') }}</span>
                 </button>
             </div>
         </div>
@@ -135,6 +135,8 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const whatsappNumber = @json($whatsappNumber);
@@ -323,14 +325,54 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 1000);
     });
 
-    // Print / Save as PDF: the browser's print dialog offers "Save as PDF".
-    el('print-btn').addEventListener('click', function () {
+    // Download PDF: render the order sheet to an A4 PDF in the browser
+    // (keeps Arabic/Persian text shaped correctly) and save it as <order number>.pdf.
+    async function makePdf() {
+        const wrap = document.createElement('div');
+        wrap.dir = document.documentElement.dir;
+        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;padding:36px;background:#fff;';
+        const clone = el('print-sheet').cloneNode(true);
+        clone.removeAttribute('id');
+        clone.classList.remove('hidden');
+        wrap.appendChild(clone);
+        document.body.appendChild(wrap);
+        try {
+            await Promise.all([...wrap.querySelectorAll('img')].map(img =>
+                img.complete ? null : new Promise(r => { img.onload = img.onerror = r; })));
+            const canvas = await html2canvas(wrap, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            const pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const imgH = canvas.height * pageW / canvas.width;
+            const img = canvas.toDataURL('image/jpeg', 0.9);
+            for (let y = 0; y < imgH; y += pageH) {
+                if (y > 0) pdf.addPage();
+                pdf.addImage(img, 'JPEG', 0, -y, pageW, imgH);
+            }
+            return pdf;
+        } finally {
+            wrap.remove();
+        }
+    }
+
+    const pdfBtn = el('print-btn');
+    const pdfLabel = el('pdf-label');
+    const pdfIdle = pdfLabel.textContent;
+    pdfBtn.addEventListener('click', async function () {
+        if (pdfBtn.disabled) return;
         updateLinkAndPrint();
         el('print-date').textContent = new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
-        const title = document.title;
-        document.title = orderNumber; // suggested PDF file name
-        window.print();
-        setTimeout(() => { document.title = title; }, 1000);
+        pdfBtn.disabled = true;
+        pdfLabel.textContent = @json(__('preparing_pdf'));
+        try {
+            (await makePdf()).save(`${orderNumber}.pdf`);
+        } catch (err) {
+            console.error(err);
+            window.print(); // fallback: the browser's "Save as PDF"
+        } finally {
+            pdfBtn.disabled = false;
+            pdfLabel.textContent = pdfIdle;
+        }
     });
 
     // Returning here with the browser Back button: re-read the cart
