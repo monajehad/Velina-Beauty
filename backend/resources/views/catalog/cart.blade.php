@@ -148,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
         quantity: @json(__('quantity')),
         remove: @json(__('remove')),
         preparing: @json(__('preparing_order')),
+        sendPdf: @json(__('send_order_pdf')),
     };
 
     // Same storage keys as the catalog page
@@ -218,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
         el('p-name').textContent = nameEl.value.trim() || '—';
         el('p-phone').textContent = phoneEl.value.trim() || '—';
         el('p-address').textContent = addressEl.value.trim() || '—';
+        schedulePdf(); // keep the phone-share PDF in step with what's on screen
     }
 
     function render() {
@@ -342,17 +344,82 @@ document.addEventListener('DOMContentLoaded', function () {
     // After sending, the stored cart is cleared (no duplicates) but this page stays
     // as-is so the order can still be printed.
     let busy = false;
-    waBtn.addEventListener('click', async function (e) {
-        e.preventDefault();
-        if (sent || busy || !Object.keys(cart).length) return;
-        busy = true;
-        const label = waBtn.innerHTML;
-        waBtn.textContent = t.preparing;
-        waBtn.classList.add('opacity-70', 'pointer-events-none');
+    const waLabel = waBtn.innerHTML;
 
+    function setBusy(text) {
+        busy = !!text;
+        if (text) waBtn.textContent = text; else waBtn.innerHTML = waLabel;
+        waBtn.classList.toggle('opacity-70', busy);
+        waBtn.classList.toggle('pointer-events-none', busy);
+    }
+
+    function markSent() {
+        sent = true;
+        [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
+        el('sent-notice').classList.remove('hidden');
+        render();
+    }
+
+    // Phones: share the PDF file itself through the system share sheet
+    // (the customer picks WhatsApp and the store chat). WhatsApp links can't carry files.
+    const canShareFiles = (() => {
+        try {
+            return window.matchMedia('(pointer: coarse)').matches && !!navigator.canShare
+                && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] });
+        } catch (e) { return false; }
+    })();
+
+    // The share sheet must open right after the tap, so the PDF is prepared in advance
+    // and rebuilt (debounced) whenever the order or customer details change.
+    let pdfVersion = 0, readyPdf = null, pdfTimer = null;
+    const toFile = (blob) => new File([blob], `${orderNumber}.pdf`, { type: 'application/pdf' });
+
+    function schedulePdf() {
+        if (!canShareFiles || sent) return;
+        const v = ++pdfVersion;
+        readyPdf = null;
+        clearTimeout(pdfTimer);
+        pdfTimer = setTimeout(async function () {
+            try {
+                const blob = await makePdfBlob();
+                if (v === pdfVersion) readyPdf = toFile(blob);
+            } catch (err) { console.warn(err); }
+        }, 800);
+    }
+
+    async function sharePdf() {
+        if (!readyPdf) {
+            // Not ready yet: build it now; the next tap opens the share sheet
+            setBusy(t.preparing);
+            const v = ++pdfVersion;
+            clearTimeout(pdfTimer);
+            try {
+                const blob = await makePdfBlob();
+                if (v === pdfVersion) readyPdf = toFile(blob);
+            } catch (err) {
+                console.warn(err);
+                setBusy(null);
+                return sendLink();
+            }
+            setBusy(null);
+            waBtn.textContent = '📄 ' + t.sendPdf;
+            return;
+        }
+        try {
+            await navigator.share({ files: [readyPdf], text: `${orderMessage}\nOrder #: ${orderNumber}` });
+            markSent();
+        } catch (err) {
+            if (err.name === 'AbortError') return; // share sheet closed without sending
+            console.warn(err);
+            sendLink();
+        }
+    }
+
+    // Computers (and fallback): upload the PDF and open WhatsApp with its link.
+    async function sendLink() {
         // Open the tab now, while the tap still counts as a user action (popup blockers)
         const win = window.open('', '_blank');
-
+        setBusy(t.preparing);
         updateLinkAndPrint();
         let pdfUrl = null;
         try {
@@ -361,20 +428,19 @@ document.addEventListener('DOMContentLoaded', function () {
             console.warn(err);
         }
         const url = whatsappLink(pdfUrl);
-
-        sent = true;
-        [CART_KEY, ORDER_NO_KEY].forEach(store.remove);
-        el('sent-notice').classList.remove('hidden');
-        waBtn.innerHTML = label;
-        waBtn.classList.remove('opacity-70', 'pointer-events-none');
-        busy = false;
-        render();
-
+        setBusy(null);
+        markSent();
         if (win && !win.closed) {
             win.location.href = url;
         } else {
             window.location.href = url; // in-app browsers that block new tabs
         }
+    }
+
+    waBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (sent || busy || !Object.keys(cart).length) return;
+        if (canShareFiles) sharePdf(); else sendLink();
     });
 
     // Print / Save as PDF: the browser's print dialog offers "Save as PDF".

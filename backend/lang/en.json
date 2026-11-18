@@ -96,5 +96,6 @@
     "remove": "Remove",
     "order_sent": "Order sent on WhatsApp. You can still print it.",
     "date": "Date",
-    "preparing_order": "Preparing your order…"
+    "preparing_order": "Preparing your order…",
+    "send_order_pdf": "Send order PDF"
 }
