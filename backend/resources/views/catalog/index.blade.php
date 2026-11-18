@@ -168,6 +168,7 @@
             <a id="order-whatsapp-btn"
                href="#"
                target="_blank"
+               rel="noopener"
                class="block text-center bg-[#25D366] text-white rounded-full py-3 font-medium text-sm">
                 💬 {{ __('confirm_order_whatsapp') }}
             </a>
@@ -386,6 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Card controls: "+" adds 1 to the cart and shows the stepper; going back to 0 removes it.
+    const cardRenders = [];
     document.querySelectorAll('[data-product-card]').forEach(function (card) {
         const id = card.dataset.id;
         const addBtn = card.querySelector('.add-btn');
@@ -435,13 +437,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Show items already picked in another category
         render(currentQty());
+        cardRenders.push(render);
     });
 
-    // Order sent on WhatsApp: start a new cart
+    // Order sent on WhatsApp: start a new cart. No page reload here: in-app browsers
+    // (Instagram, Facebook...) open the link in the same tab, and a reload would cancel it.
     orderWhatsAppBtn.addEventListener('click', function () {
-        cart = {};
-        saveCart();
-        setTimeout(() => window.location.reload(), 500);
+        if (!Object.keys(cart).length) return;
+        setTimeout(function () {
+            cart = {};
+            saveCart();
+            cardRenders.forEach(r => r(0));
+            updateTotal();
+            closeOrderModal();
+        }, 1000);
     });
 
     updateTotal();
