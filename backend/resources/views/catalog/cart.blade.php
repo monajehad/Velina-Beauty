@@ -44,7 +44,10 @@
     </div>
 
     {{-- Sent notice --}}
-    <div id="sent-notice" class="hidden bg-green-50 text-green-800 rounded-xl p-3 mb-4 text-sm font-medium">{{ __('order_sent') }}</div>
+    <div id="sent-notice" class="hidden bg-green-50 text-green-800 rounded-xl p-3 mb-4 text-sm font-medium">
+        {{ __('order_sent') }}
+        <div id="pdf-hint" class="hidden mt-1 font-bold">📄 {{ __('pdf_downloaded_hint') }}</div>
+    </div>
 
     <div id="cart-content" class="hidden grid lg:grid-cols-[1fr_380px] gap-4 md:gap-6 items-start">
 
@@ -415,7 +418,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Computers (and fallback): upload the PDF and open WhatsApp with its link.
+    // Save the PDF to the customer's computer so it can be dropped into the WhatsApp chat
+    function downloadPdf(blob) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${orderNumber}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+
+    // Computers (and fallback): download the PDF, upload it too, and open WhatsApp
+    // with its link in the message (WhatsApp links can't attach files).
     async function sendLink() {
         // Open the tab now, while the tap still counts as a user action (popup blockers)
         const win = window.open('', '_blank');
@@ -423,7 +438,12 @@ document.addEventListener('DOMContentLoaded', function () {
         updateLinkAndPrint();
         let pdfUrl = null;
         try {
-            pdfUrl = await uploadPdf(await makePdfBlob());
+            const blob = await makePdfBlob();
+            if (!canShareFiles) {
+                downloadPdf(blob);
+                el('pdf-hint').classList.remove('hidden');
+            }
+            pdfUrl = await uploadPdf(blob);
         } catch (err) {
             console.warn(err);
         }
