@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Support\ProductThumbnail;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -36,5 +38,15 @@ class Product extends Model
         return $this->image_path
             ? asset('storage/' . $this->image_path)
             : asset('images/placeholder.png');
+    }
+
+    /** Small card image; falls back to the original if the thumbnail isn't built yet. */
+    public function thumbUrl(): string
+    {
+        $thumb = ProductThumbnail::pathFor($this->image_path);
+
+        return $thumb && Storage::disk('public')->exists($thumb)
+            ? asset('storage/' . $thumb)
+            : $this->imageUrl();
     }
 }

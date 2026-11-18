@@ -61,4 +61,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin', 'admin_l
 Route::redirect('/', '/en');
 Route::prefix('{locale}')->where(['locale' => 'en|fa'])->middleware('locale')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
+    Route::get('/cart', [CatalogController::class, 'cart'])->name('catalog.cart');
 });

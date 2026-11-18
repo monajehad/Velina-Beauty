@@ -86,5 +86,13 @@
     "category_name": "اسم القسم",
     "edit": "تعديل",
     "no_products_yet": "لا توجد منتجات بعد.",
-    "add_new_product": "إضافة منتج جديد"
+    "add_new_product": "إضافة منتج جديد",
+    "cart": "السلة",
+    "view_cart": "عرض السلة",
+    "continue_shopping": "متابعة التسوق",
+    "cart_empty": "السلة فارغة.",
+    "print_order": "طباعة / حفظ PDF",
+    "remove": "حذف",
+    "order_sent": "تم إرسال الطلب عبر واتساب. يمكنك طباعته الآن.",
+    "date": "التاريخ"
 }

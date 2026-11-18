@@ -13,7 +13,12 @@
                 <div class="text-sm font-semibold text-maroon">{{ __('store_name') }}</div>
             </div>
         </div>
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
+            <a href="{{ route('catalog.cart', ['locale' => app()->getLocale()]) }}" aria-label="{{ __('cart') }}"
+               class="relative me-2 w-9 h-9 rounded-full bg-cream border border-rose text-maroon flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2.4 12.2a2 2 0 002 1.8h8.2a2 2 0 002-1.6L21 8H6M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                <span id="header-cart-count" class="hidden absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 rounded-full bg-maroon text-white text-[10px] font-bold flex items-center justify-center digits-en">0</span>
+            </a>
             <a href="{{ route('lang.switch', 'en') }}"
                class="px-3 py-1.5 text-xs rounded-full {{ app()->getLocale() === 'en' ? 'bg-maroon text-white' : 'bg-cream text-maroon border border-rose' }}">
                 EN
@@ -52,7 +57,8 @@
                  data-name="{{ $product->name }}"
                  data-barcode="{{ $product->barcode }}"
                  data-price="{{ $product->price }}"
-                 data-image="{{ $product->imageUrl() }}">
+                 data-image="{{ $product->imageUrl() }}"
+                 data-thumb="{{ $product->thumbUrl() }}">
                 {{-- Product image fills the top of the card (click opens view modal) --}}
                 <div class="relative aspect-[6/7] overflow-hidden bg-[#F1E7E0] cursor-pointer product-image"
                      data-id="{{ $product->id }}"
@@ -60,7 +66,7 @@
                      data-barcode="{{ $product->barcode }}"
                      data-price="{{ $product->price }}"
                      data-image="{{ $product->imageUrl() }}">
-                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                    <img src="{{ $product->thumbUrl() }}" alt="{{ $product->name }}" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
                 </div>
 
                 {{-- Footer: name + round "+" button, which turns into a − qty + stepper once added --}}
@@ -91,14 +97,14 @@
  {{-- Sticky bottom bar: Review Order button only --}}
 <div class="fixed bottom-0 inset-x-0 safe-bottom">
     <div class="max-w-7xl mx-auto px-4 p-3">
-        <button id="review-order-btn"
-                class="w-full flex items-center justify-between bg-[#2E7D4F] text-white rounded-2xl px-5 py-4 shadow-lg">
+        <a id="review-order-btn" href="{{ route('catalog.cart', ['locale' => app()->getLocale()]) }}"
+           class="w-full flex items-center justify-between bg-[#2E7D4F] text-white rounded-2xl px-5 py-4 shadow-lg">
             <span class="text-base font-bold"><span id="cart-count" class="digits-en">0</span> {{ __('pcs') }}</span>
             <span class="flex items-center gap-1.5 text-base font-bold">
-                {{ __('review_order') }}
+                {{ __('view_cart') }}
                 <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
             </span>
-        </button>
+        </a>
     </div>
 </div>
 
@@ -118,94 +124,22 @@
     </div>
 </div>
 
- {{-- Order Review Modal --}}
-<div id="order-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50">
-    <div class="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div class="bg-maroon text-white rounded-t-2xl px-4 py-3 flex items-center justify-between">
-            <h3 class="font-semibold">{{ __('order_review') }}</h3>
-            <button id="order-modal-close" class="bg-white/20 rounded-full p-2 hover:bg-white/30">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-        <div class="p-4 max-h-96 overflow-y-auto">
-            {{-- Customer Info Section --}}
-            <div class="mb-4 space-y-3">
-                <h4 class="text-sm font-semibold text-gray-700">{{ __('customer_info') }}</h4>
-                <div>
-                    <label class="block text-xs text-gray-600 mb-1">{{ __('customer_name') }}</label>
-                    <input type="text" id="customer-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="{{ __('customer_name_placeholder') }}">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-600 mb-1">{{ __('customer_phone') }}</label>
-                    <input type="tel" id="customer-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="{{ __('customer_phone_placeholder') }}">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-600 mb-1">{{ __('customer_address') }}</label>
-                    <textarea id="customer-address" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="{{ __('customer_address_placeholder') }}"></textarea>
-                </div>
-            </div>
-
-            {{-- Order Items --}}
-            <div id="order-items" class="space-y-3">
-                {{-- Items will be injected here --}}
-            </div>
-            
-            {{-- Order Summary: total pieces only (no prices shown to the customer) --}}
-            <div class="border-t border-gray-200 mt-4 pt-4">
-                <div class="flex justify-between text-lg font-bold text-maroon">
-                    <span>{{ __('total') }}</span>
-                    <span><span id="order-pcs" class="digits-en">0</span> {{ __('pcs') }}</span>
-                </div>
-            </div>
-
-            {{-- Auto-generated Order Number --}}
-            <div class="mt-4 p-3 bg-cream rounded-lg">
-                <div class="text-xs text-gray-600">{{ __('order_number') }}</div>
-                <div id="order-number" class="text-lg font-bold text-maroon digits-en font-mono">—</div>
-            </div>
-        </div>
-        <div class="bg-gray-50 rounded-b-2xl px-4 py-3">
-            <a id="order-whatsapp-btn"
-               href="#"
-               target="_blank"
-               rel="noopener"
-               class="block text-center bg-[#25D366] text-white rounded-full py-3 font-medium text-sm">
-                💬 {{ __('confirm_order_whatsapp') }}
-            </a>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
 <script>
-    // Pass translations to JavaScript
-    <?php
-    $translations = [
-        'add' => __('add'),
-        'added' => __('added'),
-        'order_message' => __('order_message'),
-        'review_order' => __('review_order'),
-        'order_review' => __('order_review'),
-        'subtotal' => __('subtotal'),
-        'total' => __('total'),
-        'confirm_order_whatsapp' => __('confirm_order_whatsapp'),
-    ];
-    ?>
-    const translations = @json($translations);
-
 document.addEventListener('DOMContentLoaded', function () {
-    const whatsappNumber = @json($whatsappNumber);
-    // Cart lives in sessionStorage: it survives switching categories (page reloads)
-    // within the same tab, and is gone once the tab is closed.
+    // Cart lives in sessionStorage (shared with the cart page): it survives switching
+    // categories and opening the cart page, and is gone once the tab is closed.
     const CART_KEY = 'alqamar_cart';
+    const ORDER_NO_KEY = 'alqamar_order_no';
     // A manual refresh starts a new cart; moving between categories keeps it.
     let cart = {};
     const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
     const isReload = navEntry ? navEntry.type === 'reload'
                               : (performance.navigation && performance.navigation.type === 1);
     if (isReload) {
-        try { sessionStorage.removeItem(CART_KEY); } catch (e) {}
+        try { sessionStorage.removeItem(CART_KEY); sessionStorage.removeItem(ORDER_NO_KEY); } catch (e) {}
     } else {
         try { cart = JSON.parse(sessionStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; }
     }
@@ -221,45 +155,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalBarcode = document.getElementById('modal-barcode');
     const modalClose = document.getElementById('modal-close');
 
-    // Order Modal elements
-    const orderModal = document.getElementById('order-modal');
-    const orderItems = document.getElementById('order-items');
-    const orderNumberEl = document.getElementById('order-number');
-    const customerNameEl = document.getElementById('customer-name');
-    const customerPhoneEl = document.getElementById('customer-phone');
-    const customerAddressEl = document.getElementById('customer-address');
-    const orderModalClose = document.getElementById('order-modal-close');
-    const orderWhatsAppBtn = document.getElementById('order-whatsapp-btn');
     const reviewOrderBtn = document.getElementById('review-order-btn');
 
-    function generateOrderNumber() {
-        const now = new Date();
-        const dateStr = now.toISOString().slice(0,10).replace(/-/g,'');
-        const timeStr = now.toTimeString().slice(0,5).replace(':','');
-        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        return `ORD-${dateStr}-${timeStr}-${random}`;
-    }
-
+    // Piece count in the bottom bar and on the header cart icon
     function updateTotal() {
-        let total = 0;
-        Object.values(cart).forEach(item => total += item.price * item.qty);
-        const totalEl = document.getElementById('cart-total');
-        const pricePrefix = '{{ __('price_prefix') }}';
-        if (totalEl) totalEl.textContent = total.toFixed(3) + ' ' + pricePrefix;
+        const pcs = Object.values(cart).reduce((n, item) => n + item.qty, 0);
+        document.getElementById('cart-count').textContent = pcs;
 
-        const countEl = document.getElementById('cart-count');
-        if (countEl) countEl.textContent = Object.values(cart).reduce((n, item) => n + item.qty, 0);
+        const badge = document.getElementById('header-cart-count');
+        badge.textContent = pcs > 999 ? '999+' : pcs;
+        badge.classList.toggle('hidden', pcs === 0);
 
-        // Enable/disable review order button
-        if (reviewOrderBtn) {
-            if (Object.keys(cart).length > 0) {
-                reviewOrderBtn.disabled = false;
-                reviewOrderBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                reviewOrderBtn.disabled = true;
-                reviewOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
+        // Bottom bar is dimmed and inactive while the cart is empty
+        reviewOrderBtn.classList.toggle('opacity-50', pcs === 0);
+        reviewOrderBtn.classList.toggle('pointer-events-none', pcs === 0);
     }
 
     function openProductModal(product) {
@@ -274,82 +183,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeProductModal() {
         productModal.classList.add('hidden');
         productModal.classList.remove('flex');
-        document.body.style.overflow = '';
-    }
-
-    function openOrderModal() {
-        // Build order items HTML
-        let itemsHtml = '';
-        const totalPcs = Object.values(cart).reduce((n, item) => n + item.qty, 0);
-
-        Object.values(cart).forEach((item, index) => {
-            itemsHtml += `
-                <div class="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
-                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-medium text-gray-800 truncate">${item.name}</h4>
-                        <p class="text-[10px] text-gray-500 digits-en">BC: ${item.barcode}</p>
-                        <div class="text-xs mt-1">
-                            <span class="text-gray-500">{{ __('quantity') }}:</span>
-                            <span class="font-semibold text-maroon digits-en">${item.qty}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        orderItems.innerHTML = itemsHtml;
-        document.getElementById('order-pcs').textContent = totalPcs;
-        
-        // Generate and display order number
-        const orderNumber = generateOrderNumber();
-        orderNumberEl.textContent = orderNumber;
-        
-        // Function to build WhatsApp message with current customer data
-        function buildWhatsAppMessage() {
-            const lines = Object.values(cart).map((item, i) =>
-                `${i + 1}) ${item.name}\n\u2022 Barcode: #${item.barcode}\n\u2022 Qty: ${item.qty}\n\u2022 Image: ${item.image}`
-            );
-            
-            const customerName = customerNameEl.value.trim();
-            const customerPhone = customerPhoneEl.value.trim();
-            const customerAddress = customerAddressEl.value.trim();
-            
-            let message = '';
-            if (lines.length) {
-                message = `${translations.order_message}\n\n`;
-                message += `Order #: ${orderNumber}\n`;
-                if (customerName) message += `Customer: ${customerName}\n`;
-                if (customerPhone) message += `Phone: ${customerPhone}\n`;
-                if (customerAddress) message += `Address: ${customerAddress}\n`;
-                message += `---------------------------------\n`;
-                message += `${lines.join('\n\n')}\n\n`;
-                message += `---------------------------------\n`;
-                message += `Total: ${totalPcs} pcs`;
-            } else {
-                message = translations.order_message;
-            }
-            return message;
-        }
-        
-        // Set initial WhatsApp link
-        orderWhatsAppBtn.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
-        
-        // Update WhatsApp link whenever customer inputs change
-        [customerNameEl, customerPhoneEl, customerAddressEl].forEach(el => {
-            el.addEventListener('input', function() {
-                orderWhatsAppBtn.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
-            });
-        });
-        
-        orderModal.classList.remove('hidden');
-        orderModal.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeOrderModal() {
-        orderModal.classList.add('hidden');
-        orderModal.classList.remove('flex');
         document.body.style.overflow = '';
     }
 
@@ -371,19 +204,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (modalClose) modalClose.addEventListener('click', closeProductModal);
     productModal.addEventListener('click', function (e) {
         if (e.target === productModal) closeProductModal();
-    });
-
-    // Open order modal
-    if (reviewOrderBtn) {
-        reviewOrderBtn.addEventListener('click', function () {
-            openOrderModal();
-        });
-    }
-
-    // Close order modal
-    if (orderModalClose) orderModalClose.addEventListener('click', closeOrderModal);
-    orderModal.addEventListener('click', function (e) {
-        if (e.target === orderModal) closeOrderModal();
     });
 
     // Card controls: "+" adds 1 to the cart and shows the stepper; going back to 0 removes it.
@@ -409,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     barcode: card.dataset.barcode,
                     price: parseFloat(card.dataset.price),
                     image: card.dataset.image,
+                    thumb: card.dataset.thumb,
                     qty: q,
                 };
             } else {
@@ -437,20 +258,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Show items already picked in another category
         render(currentQty());
-        cardRenders.push(render);
+        cardRenders.push(() => render(currentQty()));
     });
 
-    // Order sent on WhatsApp: start a new cart. No page reload here: in-app browsers
-    // (Instagram, Facebook...) open the link in the same tab, and a reload would cancel it.
-    orderWhatsAppBtn.addEventListener('click', function () {
-        if (!Object.keys(cart).length) return;
-        setTimeout(function () {
-            cart = {};
-            saveCart();
-            cardRenders.forEach(r => r(0));
-            updateTotal();
-            closeOrderModal();
-        }, 1000);
+    // Back from the cart page (browser Back): the page comes from memory with old
+    // state, so re-read the cart that may have been edited there.
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) return;
+        try { cart = JSON.parse(sessionStorage.getItem(CART_KEY)) || {}; } catch (err) { cart = {}; }
+        cardRenders.forEach(r => r());
+        updateTotal();
     });
 
     updateTotal();

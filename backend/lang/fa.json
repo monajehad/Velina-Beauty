@@ -75,5 +75,15 @@
     "product_status_updated": "وضعیت محصول به‌روزرسانی شد.",
     "icon": "آیکون",
     "sort_order": "ترتیب",
-    "save": "ذخیره"
+    "save": "ذخیره",
+    "cart": "سبد خرید",
+    "view_cart": "مشاهده سبد",
+    "continue_shopping": "ادامه خرید",
+    "cart_empty": "سبد خرید شما خالی است.",
+    "print_order": "چاپ / ذخیره PDF",
+    "remove": "حذف",
+    "order_sent": "سفارش در واتس‌اپ ارسال شد. هنوز می‌توانید آن را چاپ کنید.",
+    "date": "تاریخ",
+    "product": "محصول",
+    "barcode": "بارکد"
 }

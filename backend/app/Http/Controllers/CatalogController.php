@@ -29,4 +29,15 @@ class CatalogController extends Controller
 
         return view('catalog.index', compact('categories', 'products', 'whatsappNumber'));
     }
+
+    /**
+     * Cart page. The cart itself lives in the browser (sessionStorage), so this
+     * only renders the page shell; JavaScript fills in the items.
+     */
+    public function cart()
+    {
+        $whatsappNumber = config('services.whatsapp.number');
+
+        return view('catalog.cart', compact('whatsappNumber'));
+    }
 }

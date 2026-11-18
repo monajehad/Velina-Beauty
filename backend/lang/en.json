@@ -87,5 +87,13 @@
     "category_name": "Category name",
     "edit": "Edit",
     "no_products_yet": "No products yet.",
-    "add_new_product": "Add new product"
+    "add_new_product": "Add new product",
+    "cart": "Cart",
+    "view_cart": "View cart",
+    "continue_shopping": "Continue shopping",
+    "cart_empty": "Your cart is empty.",
+    "print_order": "Print / Save as PDF",
+    "remove": "Remove",
+    "order_sent": "Order sent on WhatsApp. You can still print it.",
+    "date": "Date"
 }

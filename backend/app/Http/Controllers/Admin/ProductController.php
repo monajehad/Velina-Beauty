@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\ProductThumbnail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,7 +43,8 @@ class ProductController extends Controller
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
 
-        Product::create($data);
+        $product = Product::create($data);
+        ProductThumbnail::make($product);
 
         return redirect()->route('admin.products.index')->with('status', 'product_added');
     }
@@ -60,11 +62,15 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             if ($product->image_path) {
                 Storage::disk('public')->delete($product->image_path);
+                ProductThumbnail::delete($product->image_path);
             }
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
 
         $product->update($data);
+        if ($request->hasFile('image')) {
+            ProductThumbnail::make($product);
+        }
 
         return redirect()->route('admin.products.index')->with('status', 'product_updated');
     }
@@ -73,6 +79,7 @@ class ProductController extends Controller
     {
         if ($product->image_path) {
             Storage::disk('public')->delete($product->image_path);
+            ProductThumbnail::delete($product->image_path);
         }
         $product->delete();
 
