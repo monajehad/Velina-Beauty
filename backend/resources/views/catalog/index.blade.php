@@ -72,10 +72,13 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
                     </button>
 
-                    <div class="qty-stepper hidden flex-shrink-0 items-center gap-3 h-8 px-3 rounded-full bg-maroon text-white">
-                        <button type="button" class="qty-minus text-lg leading-none font-semibold">−</button>
-                        <span class="qty-value text-sm font-semibold digits-en min-w-[1ch] text-center">0</span>
-                        <button type="button" class="qty-plus text-lg leading-none font-semibold">+</button>
+                    <div class="qty-stepper hidden flex-shrink-0 items-center gap-1.5 h-8 px-2.5 rounded-full bg-maroon text-white">
+                        <button type="button" class="qty-minus text-lg leading-none font-semibold px-0.5">−</button>
+                        {{-- Tap the number to type a quantity directly --}}
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="0"
+                               aria-label="{{ __('quantity') }}"
+                               class="qty-value w-9 h-6 rounded-md bg-white/15 focus:bg-white focus:text-maroon text-center text-sm font-semibold digits-en border-0 outline-none p-0">
+                        <button type="button" class="qty-plus text-lg leading-none font-semibold px-0.5">+</button>
                     </div>
                 </div>
             </div>
@@ -382,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const qtyEl = card.querySelector('.qty-value');
 
         function render(q) {
-            qtyEl.textContent = q;
+            qtyEl.value = q;
             addBtn.classList.toggle('hidden', q > 0);
             stepper.classList.toggle('hidden', q === 0);
             stepper.classList.toggle('flex', q > 0);
@@ -410,6 +413,17 @@ document.addEventListener('DOMContentLoaded', function () {
         addBtn.addEventListener('click', () => setQty(1));
         card.querySelector('.qty-plus').addEventListener('click', () => setQty(currentQty() + 1));
         card.querySelector('.qty-minus').addEventListener('click', () => setQty(currentQty() - 1));
+
+        // Typed quantity: accepts Arabic/Persian digits too; empty or 0 removes the item
+        qtyEl.addEventListener('focus', () => qtyEl.select());
+        qtyEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') qtyEl.blur(); });
+        qtyEl.addEventListener('change', function () {
+            const digits = qtyEl.value
+                .replace(/[٠-٩]/g, d => d.charCodeAt(0) - 0x0660)
+                .replace(/[۰-۹]/g, d => d.charCodeAt(0) - 0x06F0)
+                .replace(/\D/g, '');
+            setQty(parseInt(digits, 10) || 0);
+        });
 
         // Show items already picked in another category
         render(currentQty());
