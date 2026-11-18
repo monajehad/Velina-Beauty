@@ -321,12 +321,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         // Set initial WhatsApp link
-        orderWhatsAppBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(buildWhatsAppMessage())}`;
+        orderWhatsAppBtn.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
         
         // Update WhatsApp link whenever customer inputs change
         [customerNameEl, customerPhoneEl, customerAddressEl].forEach(el => {
             el.addEventListener('input', function() {
-                orderWhatsAppBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(buildWhatsAppMessage())}`;
+                orderWhatsAppBtn.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
             });
         });
         
