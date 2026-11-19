@@ -107,5 +107,6 @@
     "preparing_pdf": "Preparing PDF…",
     "sending_order": "Sending your order…",
     "order_sent_server": "Your order was sent ✓ We will contact you soon.",
-    "sent_by_server": "PDF sent to WhatsApp by the server"
+    "sent_by_server": "PDF sent to WhatsApp by the server",
+    "whatsapp_welcome": "Hello AL QAMAR / GENERAL TRADING 👋\nI would like to place a new order. The full order is in the PDF below:"
 }

@@ -69,6 +69,8 @@ Route::prefix('{locale}')->where(['locale' => 'en|fa'])->middleware('locale')->g
     Route::get('/cart', [CatalogController::class, 'cart'])->name('catalog.cart');
     Route::post('/cart/order', [CatalogController::class, 'storeOrder'])
         ->middleware('throttle:20,1')->name('catalog.cart.order');
+    Route::post('/cart/pdf', [CatalogController::class, 'uploadOrderPdf'])
+        ->middleware('throttle:10,1')->name('catalog.cart.pdf');
     Route::post('/cart/send', [CatalogController::class, 'sendOrder'])
         ->middleware('throttle:10,1')->name('catalog.cart.send');
 });

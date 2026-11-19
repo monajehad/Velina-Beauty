@@ -141,6 +141,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const whatsappNumber = @json($whatsappNumber);
     const orderMessage = @json(__('order_message'));
+    const welcomeMessage = @json(__('whatsapp_welcome'));
     const t = {
         quantity: @json(__('quantity')),
         remove: @json(__('remove')),
@@ -189,7 +190,19 @@ document.addEventListener('DOMContentLoaded', function () {
     phoneEl.value = customer.phone || '';
     addressEl.value = customer.address || '';
 
-    function buildWhatsAppMessage() {
+    // With a PDF link: a short welcome message + the link (the PDF has the products).
+    // Without one (PDF failed): the full text order as before.
+    function buildWhatsAppMessage(pdfUrl) {
+        if (pdfUrl) {
+            let message = `${welcomeMessage}\n\n`;
+            message += `Order #: ${orderNumber}\n`;
+            if (nameEl.value.trim()) message += `Customer: ${nameEl.value.trim()}\n`;
+            if (phoneEl.value.trim()) message += `Phone: ${phoneEl.value.trim()}\n`;
+            if (addressEl.value.trim()) message += `Address: ${addressEl.value.trim()}\n`;
+            message += `Total: ${totalPcs()} pcs\n\n`;
+            message += `📄 PDF: ${pdfUrl}`;
+            return message;
+        }
         const lines = Object.values(cart).map((item, i) =>
             `${i + 1}) ${item.name}\n• Barcode: #${item.barcode}\n• Qty: ${item.qty}\n• Image: ${item.image}`
         );
@@ -321,6 +334,61 @@ document.addEventListener('DOMContentLoaded', function () {
         render();
     }
 
+    function orderForm(pdf) {
+        const form = new FormData();
+        form.append('pdf', pdf.output('blob'), `${orderNumber}.pdf`);
+        form.append('order_number', orderNumber);
+        form.append('customer_name', nameEl.value.trim());
+        form.append('customer_phone', phoneEl.value.trim());
+        form.append('customer_address', addressEl.value.trim());
+        form.append('items', JSON.stringify(Object.entries(cart).map(([id, item]) => ({ id: Number(id), qty: item.qty }))));
+        return form;
+    }
+
+    function postForm(url, form) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: form,
+        });
+    }
+
+    // Default: make the PDF, upload it, then open the store's WhatsApp chat with a
+    // welcome message and the PDF link. (WhatsApp links can carry text only, not files.)
+    async function sendWithPdfLink() {
+        if (sending) return;
+        sending = true;
+        // Open the tab now, while the tap still counts as a user action (popup blockers)
+        const win = window.open('', '_blank');
+        const label = waBtn.innerHTML;
+        waBtn.textContent = @json(__('sending_order'));
+        waBtn.classList.add('opacity-70', 'pointer-events-none');
+
+        let pdfUrl = null;
+        try {
+            const res = await postForm(@json(route('catalog.cart.pdf', ['locale' => app()->getLocale()])), orderForm(await makePdf()));
+            if (res.ok) pdfUrl = (await res.json()).url;
+        } catch (err) {
+            console.warn(err);
+        }
+        if (!pdfUrl) saveOrder(); // still record the order
+
+        const url = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(buildWhatsAppMessage(pdfUrl))}`;
+        waBtn.innerHTML = label;
+        waBtn.classList.remove('opacity-70', 'pointer-events-none');
+        sending = false;
+        markSent();
+
+        if (win && !win.closed) {
+            win.location.href = url;
+        } else {
+            window.location.href = url; // in-app browsers that block new tabs
+        }
+    }
+
     // Server-side WhatsApp (when configured): the PDF is made here, and the server
     // sends it to the store's WhatsApp number. The customer doesn't open WhatsApp.
     // If anything fails, fall back to the normal WhatsApp text message.
@@ -335,22 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let ok = false;
         try {
-            const pdf = await makePdf();
-            const form = new FormData();
-            form.append('pdf', pdf.output('blob'), `${orderNumber}.pdf`);
-            form.append('order_number', orderNumber);
-            form.append('customer_name', nameEl.value.trim());
-            form.append('customer_phone', phoneEl.value.trim());
-            form.append('customer_address', addressEl.value.trim());
-            form.append('items', JSON.stringify(Object.entries(cart).map(([id, item]) => ({ id: Number(id), qty: item.qty }))));
-            const res = await fetch(@json(route('catalog.cart.send', ['locale' => app()->getLocale()])), {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: form,
-            });
+            const res = await postForm(@json(route('catalog.cart.send', ['locale' => app()->getLocale()])), orderForm(await makePdf()));
             ok = res.ok && (await res.json()).sent === true;
         } catch (err) {
             console.warn(err);
@@ -373,13 +426,8 @@ document.addEventListener('DOMContentLoaded', function () {
     waBtn.addEventListener('click', function (e) {
         if (sent || !Object.keys(cart).length) { e.preventDefault(); return; }
         updateLinkAndPrint();
-        if (serverWhatsApp) {
-            e.preventDefault();
-            sendViaServer();
-            return;
-        }
-        saveOrder();
-        setTimeout(() => markSent(), 1000);
+        e.preventDefault();
+        if (serverWhatsApp) sendViaServer(); else sendWithPdfLink();
     });
 
     // Download PDF: render the order sheet to an A4 PDF in the browser

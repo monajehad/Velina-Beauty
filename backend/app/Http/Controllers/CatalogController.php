@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\WhatsAppSender;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CatalogController extends Controller
@@ -60,6 +61,24 @@ class CatalogController extends Controller
     }
 
     /**
+     * Saves the order with its PDF (made in the browser) and returns the PDF's
+     * public link, which goes into the WhatsApp message to the store.
+     */
+    public function uploadOrderPdf(Request $request)
+    {
+        $request->validate([
+            'pdf' => ['required', 'file', 'mimetypes:application/pdf', 'max:8192'],
+        ]);
+
+        $order = $this->saveOrder($request);
+        if (! $order) {
+            return response()->json(['message' => 'No valid products'], 422);
+        }
+
+        return response()->json(['url' => asset('storage/' . $this->storePdf($request, $order))]);
+    }
+
+    /**
      * Server-side WhatsApp: saves the order with its PDF (made in the browser)
      * and the server sends that PDF to the store's WhatsApp number.
      * Only used when WHATSAPP_DRIVER is configured.
@@ -77,9 +96,7 @@ class CatalogController extends Controller
             return response()->json(['message' => 'No valid products'], 422);
         }
 
-        // Random suffix so order links can't be guessed from the order number
-        $path = $request->file('pdf')->storeAs('orders', $order->order_number . '-' . Str::random(12) . '.pdf', 'public');
-        $order->update(['pdf_path' => $path]);
+        $path = $this->storePdf($request, $order);
 
         $caption = trim(implode("\n", array_filter([
             'Order #: ' . $order->order_number,
@@ -102,6 +119,20 @@ class CatalogController extends Controller
         }
 
         return response()->json(['sent' => $sent]);
+    }
+
+    /** Stores the uploaded PDF and links it to the order (replacing an older one). */
+    private function storePdf(Request $request, Order $order): string
+    {
+        if ($order->pdf_path) {
+            Storage::disk('public')->delete($order->pdf_path);
+        }
+
+        // Random suffix so order links can't be guessed from the order number
+        $path = $request->file('pdf')->storeAs('orders', $order->order_number . '-' . Str::random(12) . '.pdf', 'public');
+        $order->update(['pdf_path' => $path]);
+
+        return $path;
     }
 
     /**

@@ -106,5 +106,6 @@
     "preparing_pdf": "جاري تجهيز PDF…",
     "sending_order": "جاري إرسال الطلب…",
     "order_sent_server": "تم إرسال طلبك ✓ سنتواصل معك قريباً.",
-    "sent_by_server": "تم إرسال PDF إلى واتساب من السيرفر"
+    "sent_by_server": "تم إرسال PDF إلى واتساب من السيرفر",
+    "whatsapp_welcome": "مرحباً AL QAMAR / GENERAL TRADING 👋\nأود تقديم طلب جديد. تفاصيل الطلب كاملة في ملف PDF أدناه:"
 }
