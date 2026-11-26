@@ -118,16 +118,18 @@
             <tr class="bg-cream text-maroon">
                 <th class="border border-gray-300 p-2 w-8">#</th>
                 <th class="border border-gray-300 p-2 w-16"></th>
-                <th class="border border-gray-300 p-2 text-start">{{ __('product') }}</th>
-                <th class="border border-gray-300 p-2 text-start">{{ __('barcode') }}</th>
+                <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('product') }}</th>
+                <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('barcode') }}</th>
                 <th class="border border-gray-300 p-2 w-20">{{ __('quantity') }}</th>
+                <th class="border border-gray-300 p-2">{{ __('price') }}</th>
             </tr>
         </thead>
         <tbody id="print-rows"></tbody>
         <tfoot>
             <tr class="font-bold text-maroon">
                 <td colspan="4" class="border border-gray-300 p-2 text-end">{{ __('total') }}</td>
-                <td class="border border-gray-300 p-2 text-center"><span class="total-pcs digits-en"></span> {{ __('pcs') }}</td>
+                <td class="border border-gray-300 p-2 text-center whitespace-nowrap"><span class="total-pcs digits-en"></span> {{ __('pcs') }}</td>
+                <td class="border border-gray-300 p-2"></td>
             </tr>
         </tfoot>
     </table>
@@ -257,9 +259,10 @@ document.addEventListener('DOMContentLoaded', function () {
             <tr>
                 <td class="border border-gray-300 p-2 text-center digits-en">${i + 1}</td>
                 <td class="border border-gray-300 p-1"><img src="${esc(item.thumb || item.image)}" alt="" class="w-12 h-14 object-cover rounded mx-auto"></td>
-                <td class="border border-gray-300 p-2 font-semibold">${esc(item.name)}</td>
-                <td class="border border-gray-300 p-2 digits-en">${esc(item.barcode)}</td>
+                <td class="border border-gray-300 p-2 font-semibold whitespace-nowrap">${esc(item.name)}</td>
+                <td class="border border-gray-300 p-2 digits-en whitespace-nowrap">${esc(item.barcode)}</td>
                 <td class="border border-gray-300 p-2 text-center font-bold digits-en">${item.qty}</td>
+                <td class="border border-gray-300 p-2"></td>
             </tr>`).join('');
 
         waBtn.classList.toggle('opacity-50', sent);

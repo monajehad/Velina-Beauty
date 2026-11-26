@@ -44,9 +44,10 @@
             <tr class="bg-cream text-maroon">
                 <th class="border border-gray-300 p-2 w-8">#</th>
                 <th class="border border-gray-300 p-2 w-16"></th>
-                <th class="border border-gray-300 p-2 text-start">{{ __('product') }}</th>
-                <th class="border border-gray-300 p-2 text-start">{{ __('barcode') }}</th>
+                <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('product') }}</th>
+                <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('barcode') }}</th>
                 <th class="border border-gray-300 p-2 w-20">{{ __('quantity') }}</th>
+                <th class="border border-gray-300 p-2">{{ __('price') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -54,16 +55,18 @@
                 <tr style="break-inside: avoid">
                     <td class="border border-gray-300 p-2 text-center">{{ $i + 1 }}</td>
                     <td class="border border-gray-300 p-1"><img src="{{ $item['image'] }}" alt="" class="w-12 h-14 object-cover rounded mx-auto"></td>
-                    <td class="border border-gray-300 p-2 font-semibold">{{ $item['name'] }}</td>
-                    <td class="border border-gray-300 p-2"><span dir="ltr">{{ $item['barcode'] }}</span></td>
+                    <td class="border border-gray-300 p-2 font-semibold whitespace-nowrap">{{ $item['name'] }}</td>
+                    <td class="border border-gray-300 p-2 whitespace-nowrap"><span dir="ltr">{{ $item['barcode'] }}</span></td>
                     <td class="border border-gray-300 p-2 text-center font-bold">{{ $item['qty'] }}</td>
+                    <td class="border border-gray-300 p-2"></td>
                 </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr class="font-bold text-maroon">
                 <td colspan="4" class="border border-gray-300 p-2 text-end">{{ __('total') }}</td>
-                <td class="border border-gray-300 p-2 text-center">{{ $order->total_pcs }} {{ __('pcs') }}</td>
+                <td class="border border-gray-300 p-2 text-center whitespace-nowrap">{{ $order->total_pcs }} {{ __('pcs') }}</td>
+                <td class="border border-gray-300 p-2"></td>
             </tr>
         </tfoot>
     </table>
