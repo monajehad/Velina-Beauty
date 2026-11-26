@@ -39,7 +39,7 @@
         <div><div class="text-gray-500">{{ __('customer_address') }}</div><div class="font-semibold whitespace-pre-line">{{ $order->customer_address ?: '—' }}</div></div>
     </div>
 
-    <table class="w-full border-collapse text-xs">
+    <table class="border-collapse text-xs">
         <thead>
             <tr class="bg-cream text-maroon">
                 <th class="border border-gray-300 p-2 w-8">#</th>
@@ -47,7 +47,7 @@
                 <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('product') }}</th>
                 <th class="border border-gray-300 p-2 text-start w-px whitespace-nowrap">{{ __('barcode') }}</th>
                 <th class="border border-gray-300 p-2 w-20">{{ __('quantity') }}</th>
-                <th class="border border-gray-300 p-2">{{ __('price') }}</th>
+                <th class="border border-gray-300 p-2 w-28 min-w-[7rem]">{{ __('price') }}</th>
             </tr>
         </thead>
         <tbody>
